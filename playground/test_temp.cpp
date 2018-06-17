@@ -22,8 +22,16 @@ typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
 int main() {
-    // ios::sync_with_stdio(0);
-    // cin.tie(0);
-    
+    _upgrade;
+
+    pii a = {1, 2};
+    int b = 4;
+    double c = M_PI;
+
+    error("aaa", b, c);
+
+    REP(i, 0, -5) {
+        printf("%d\n", i);
+    }
 }
 
