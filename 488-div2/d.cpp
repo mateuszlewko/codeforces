@@ -1,11 +1,34 @@
+#pragma region Template 
 #include <bits/stdc++.h> 
-
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
 
 using namespace std;
 
-bool check(int l, int r, pair<int, int> p) {
+#define For(i, n) for (int i = 0; i < (n); i++)
+#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define SORT(x) sort(begin(x), end(x))
+#define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#if DEBUG
+#define error(args...) { string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss); err(_it, args); }
+void err(istream_iterator<string>) {}
+template<typename T, typename... Args>
+void err(istream_iterator<string> it, T a, Args... args) {
+	cerr << *it << " = " << a << endl;
+	err(++it, args...);
+}
+#else
+#define error(...) do {} while (0)
+#endif
+
+#define _upgrade do { ios::sync_with_stdio(0); cin.tie(0); } while (0)
+
+typedef long long ll;
+typedef pair<int, int> pii;
+typedef pair<ll, ll> pll;
+
+#pragma endregion
+
+int check(int l, int r, pair<int, int> p) {
     if (l == p.first && r != p.second) return l;
     if (l == p.second && r != p.first) return l;
     if (r == p.first && l != p.second) return r;
@@ -40,25 +63,34 @@ int main() {
         int r = max(a, b);
 
         int cnt = 0;
+        int local = 0;
+
         For (j, n) {
             int curr = check(l, r, ps[j]);
 
             if (curr && vis[j] && vis[j] != curr) {
                 puts("-1");
+                error(curr, vis[j]);
+
                 return 0;
             }
 
             if (curr) {
+                if (local != curr)
+                    cnt++;
+            
+                error("cnt++", l, r, ps[j].first, ps[j].second, curr, vis[j]);
+                local = curr;
                 vis[j] = curr;
-                cnt++;
-                ans = curr;
             }
         }
 
         // printf("cnt: %d for %d %d\n", cnt, l, r);
 
-        if (cnt == 1)
+        if (cnt == 1 && ans != local) {
             total_cnt++;
+            ans = local;
+        }
         else if (cnt > 1) {
             puts("-1");
             return 0;

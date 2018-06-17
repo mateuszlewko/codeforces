@@ -1,4 +1,7 @@
-#pragma region Template 
+#pragma region Template
+// vscode-fold=1
+#pragma region __
+
 #include <bits/stdc++.h> 
 
 using namespace std;
@@ -25,7 +28,7 @@ void err(istream_iterator<string> it, T a, Args... args) {
 typedef long long ll;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
-
+#pragma endregion
 #pragma endregion 
 
 int main() {
