@@ -28,35 +28,27 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const ll MOD = 1000 * 1000 * 1000 + 7;
-
-ll fast_pow(ll n, ll k) {
-	if (k == 0) 
-		return 1LL;
-	
-	ll res = fast_pow(n, k >> 1);
-	res = (res * res) % MOD;
-
-	if (k & 1) res = (res * n) % MOD;
-
-	return res;
+int solve(int curr, int x) {
+	if (x == 0)
+		return curr; 
+	if (x >= 100) {
+		int cnt = x / 100;
+		return solve(curr + cnt, x - cnt * 100);
+	}
+	if (x >= 20)
+		return solve(curr + 1, x - 20);
+	if (x >= 10)
+		return solve(curr + 1, x - 10);
+	if (x >= 5)
+		return solve(curr + 1, x - 5);
+	if (x >= 1)
+		return solve(curr + 1, x - 1);
 }
 
 int main() {
     // _upgrade;
-	ll x, k; 
-	scanf("%lld %lld", &x, &k);
-
-	if (x == 0) {
-		puts("0");
-		return 0;
-	}
-
-	x %= MOD;
-
-	ll b = (fast_pow(2, k + 1) * x) % MOD;
-	ll a = (fast_pow(2, k) + MOD - 1) % MOD;
-
-	printf("%lld\n", (b - a + MOD) % MOD);
+	int n;
+	scanf("%d", &n);
+	printf("%d\n", solve(0, n));
 }
 

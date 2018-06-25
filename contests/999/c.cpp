@@ -28,35 +28,36 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const ll MOD = 1000 * 1000 * 1000 + 7;
+vector<int> pos[30]; 
+const int N = 4 * 100 * 1000 + 10;
+bool invalid[N];
 
-ll fast_pow(ll n, ll k) {
-	if (k == 0) 
-		return 1LL;
+void go(int letter, int curr_pos, int left) {
+	if (left == 0) return;
+	if (pos[letter].size() == curr_pos)
+		return go(letter + 1, 0, left);
 	
-	ll res = fast_pow(n, k >> 1);
-	res = (res * res) % MOD;
-
-	if (k & 1) res = (res * n) % MOD;
-
-	return res;
+	invalid[pos[letter][curr_pos]] = true;
+	return go(letter, curr_pos + 1, left - 1);
 }
 
 int main() {
-    // _upgrade;
-	ll x, k; 
-	scanf("%lld %lld", &x, &k);
+    _upgrade;
 
-	if (x == 0) {
-		puts("0");
-		return 0;
+	int n, k; 
+	string s; 
+	cin >> n >> k >> s;
+
+
+	For (i, n) 
+		pos[s[i] - 'a'].push_back(i);
+
+	go(0, 0, k);
+	For (i, n) {
+		if (!invalid[i])
+			cout << s[i];
 	}
 
-	x %= MOD;
-
-	ll b = (fast_pow(2, k + 1) * x) % MOD;
-	ll a = (fast_pow(2, k) + MOD - 1) % MOD;
-
-	printf("%lld\n", (b - a + MOD) % MOD);
+	cout << "\n";
 }
 

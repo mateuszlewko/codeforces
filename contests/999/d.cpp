@@ -28,35 +28,52 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const ll MOD = 1000 * 1000 * 1000 + 7;
-
-ll fast_pow(ll n, ll k) {
-	if (k == 0) 
-		return 1LL;
-	
-	ll res = fast_pow(n, k >> 1);
-	res = (res * res) % MOD;
-
-	if (k & 1) res = (res * n) % MOD;
-
-	return res;
-}
+const int M = 2 * 100 * 1000 + 10;
+vector<int> mods[M];
+int added[M];
+ll nums[M];
 
 int main() {
     // _upgrade;
-	ll x, k; 
-	scanf("%lld %lld", &x, &k);
+	int n, m;
+	scanf("%d %d", &n, &m);
 
-	if (x == 0) {
-		puts("0");
-		return 0;
+	For (i, n) {
+		int a;
+		scanf("%d", &a);
+		nums[i] = a;
+		mods[a % m].push_back(i);
 	}
 
-	x %= MOD;
+	int expected = n / m;
 
-	ll b = (fast_pow(2, k + 1) * x) % MOD;
-	ll a = (fast_pow(2, k) + MOD - 1) % MOD;
+	priority_queue<pair<int, int>> Q;
+	
+	For (i, m) {
+		while ((int)mods[i].size() > expected) {
+			Q.push({i, mods[i].back()});
+			mods[i].pop_back();
+		}
+	}
 
-	printf("%lld\n", (b - a + MOD) % MOD);
+	ll res = 0;
+
+	For (i, m) {
+		int cnt = expected - (int)mods[i].size();
+		while (cnt--) {
+			auto [mod_i, pos] = Q.top();
+			Q.pop();
+			int to_add = i < mod_i ? i + m - mod_i : i - mod_i;
+			// error(i, m, mod_i, pos, to_add);
+			// printf("adding: %d, to: %d\n", to_add, pos);
+
+			res += to_add;
+			added[pos] = to_add;
+		}
+	}
+
+	printf("%lld\n", res);
+	For (i, n)
+		printf("%lld ", nums[i] + added[i]);
 }
 
