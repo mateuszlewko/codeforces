@@ -32,7 +32,10 @@ typedef pair<ll, ll> pll;
 
 typedef pair<pii, pii> sqr;
 
-optional<sqr> intersect(const sqr& l, const sqr& r) {
+optional<sqr> intersect(const optional<sqr>& l_opt, const sqr& r) {
+	if (!l_opt.has_value()) return nullopt;
+	auto l = l_opt.value();
+
 	pii bl = {max(l.first.first, r.first.first), max(l.first.second, r.first.second)};
 	pii tr = {min(l.second.first, r.second.first), min(l.second.second, r.second.second)};
 
@@ -45,30 +48,11 @@ optional<sqr> intersect(const sqr& l, const sqr& r) {
 const int N = 150 * 1000;
 sqr sqrs[N];
 
-optional<sqr> all_inter(sqr curr, int i, int n, bool can_skip) {
-	if (i == n) return curr;
+optional<sqr> pref[N], suf[N];
 
-	if (auto next = intersect(curr, sqrs[i])) {
-		return all_inter(next.value(), i + 1, n, can_skip);
-	} else {
-		if (can_skip) return all_inter(curr, i + 1, n, false);
-		return nullopt; 
-	}
-}
-
-bool test(int a, int b, int n) {
-	if (auto opt = intersect(sqrs[a], sqrs[b])) {
-		optional<sqr> res_opt = all_inter(opt.value(), 0, n, true);	
-		
-		if (res_opt.has_value()) {
-			auto res = res_opt.value();
-
-			cout << res.first.first << " " << res.first.second << "\n";
-			return true;
-		}
-	} else return false;
-
-	return false;
+void print_val(optional<sqr> s) {
+	cout << s.value().first.first << " " << s.value().first.second << "\n";
+	exit(0);
 }
 
 int main() {
@@ -86,14 +70,32 @@ int main() {
 		return 0;
 	}
 
-	bool found = test(rand() % n, rand() % n, n);
-
-	while (!found) {
-		int a = rand() % n; 
-		int b = rand() % n; 
-
-		if (a == b) continue;
-		found = test(a, b, n);
+	pref[0] = optional<sqr>{sqrs[0]};
+	For (i, n - 1) { 
+		pref[i + 1] = intersect(pref[i], sqrs[i + 1]); 
+		// bool has = pref[i + 1].has_value();
+		// error(i+1, has);
 	}
+	
+	suf[n - 1] = optional<sqr>{sqrs[n - 1]};
+	ForD (i, n - 1) suf[i] = intersect(suf[i + 1], sqrs[i]);
+
+	For (i, n) {
+		if (i == 0) {
+			if (suf[1].has_value()) print_val(suf[i + 1]);
+		}
+		else if (i == n - 1) {
+			// error(pref[i - 1].has_value());
+			if (pref[i - 1].has_value()) print_val(pref[i - 1]);
+		}
+		else if (suf[i + 1].has_value()) {
+			auto res = intersect(pref[i - 1], suf[i + 1].value());
+			if (res.has_value()) {
+				print_val(res);
+			}
+		}
+	}
+
+	return 33;
 }
 
