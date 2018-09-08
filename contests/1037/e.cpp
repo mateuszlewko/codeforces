@@ -32,7 +32,7 @@ const int N = 2 * 100 * 1000 + 10;
 
 pii edges[N];
 int degree[N];
-vector<int> G[N];
+unordered_set<int> G[N];
 int ans[N];
 
 int main() {
@@ -43,6 +43,10 @@ int main() {
 
 	For (i, m) {
 		cin >> edges[i].first >> edges[i].second;
+
+		G[edges[i].first].insert(edges[i].second);
+		G[edges[i].second].insert(edges[i].first);
+
 		degree[edges[i].first]++;
 		degree[edges[i].second]++;
 	}
@@ -56,34 +60,46 @@ int main() {
 	auto normalize = [&]() {
 		while (Q.size() && (*Q.begin()).first < k) {
 			auto beg = Q.begin();
-			int x = (*beg).first;
+			int x = (*beg).second;
 			Q.erase(beg);
 
+			error(x);
+
 			for (int y : G[x]) {
-				auto it = Q.find({y, degree[y]});
+				auto it = Q.find({degree[y], y});
 				if (it == Q.end()) continue;
 
 				Q.erase(it);
-				Q.insert({y, --degree[y]});
+				Q.insert({--degree[y], y});
+				error(degree[y], y);
 			}
 		}
 	};
 
+	normalize();
+
 	ans[m - 1] = Q.size();
 
 	for (int i = m - 1; i >= 1; i--) {
-		auto a = Q.find({edges[i].first, degree[edges[i].first]});
-		auto b = Q.find({edges[i].second, degree[edges[i].second]});
+		auto a = Q.find({degree[edges[i].first], edges[i].first});
+		auto b = Q.find({degree[edges[i].second], edges[i].second});
 
 		if (a != Q.end() && b != Q.end()) {
+			error(edges[i].first, degree[edges[i].first], edges[i].second,
+			      degree[edges[i].second]);
+
 			Q.erase(a);
 			Q.erase(b);
-			Q.insert({edges[i].first, --degree[edges[i].first]});
-			Q.insert({edges[i].second, --degree[edges[i].second]});
+			Q.insert({--degree[edges[i].first], edges[i].first});
+			Q.insert({--degree[edges[i].second], edges[i].second});
 			
+			G[edges[i].first].erase(edges[i].second);
+			G[edges[i].second].erase(edges[i].first);
+
 			normalize();
-			ans[i - 1] = Q.size();
 		}
+
+		ans[i - 1] = Q.size();
 	}
 
 	For (i, m) 
