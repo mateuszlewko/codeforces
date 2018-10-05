@@ -28,51 +28,17 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-pair<string, string> mk(string a, string b) {
-	a.push_back(b.back());
-	b = string(1, a.front()) + b;
-
-	return {a, b};
-}
-
-int solve(string a, string b) {
-	if (a.size() != b.size()) return 0;
-
-	if (a.size() == 1) {
-		return 2;
-	}
-
-	auto p1 = mk(a, b);
-	auto p2 = mk(b, a);
-	if (p1.first == p1.second && p2.first == p2.second && p1.first != p2.first) {
-		return 2;
-	}
-	if (p1.first == p1.second) return 1; 
-	else return 0;
-}
-
 int main() {
     _upgrade;
-	int n;
-	string s, t;
-	cin >> n >> s >> t;
 
-	while (s.size() && s.back() == t.back()) {
-		s.pop_back();
-		t.pop_back();
+	int xp, yp, xv, yv;
+	cin >> xp >> yp >> xv >> yv;
+	
+	int mx = max(xv, yv);
+	if ((xp <= xv && yp <= yv) || (xp + yp <= mx)) {
+		cout << "Polycarp\n";
+	} else {
+		cout << "Vasiliy\n";
 	}
-
-	int pos = 0;
-	For (i, s.size()) { 
-		if (s[i] != t[i]) {
-			pos = i;
-			break;
-		}
-	}
-
-	s = s.substr(pos, s.size() - pos);
-	t = t.substr(pos, t.size() - pos);
-
-	cout << max(solve(s, t), solve(t, s)) << "\n";
 }
 

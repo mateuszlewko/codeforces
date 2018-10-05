@@ -28,51 +28,27 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-pair<string, string> mk(string a, string b) {
-	a.push_back(b.back());
-	b = string(1, a.front()) + b;
+ll need[1000 * 1000];
 
-	return {a, b};
-}
-
-int solve(string a, string b) {
-	if (a.size() != b.size()) return 0;
-
-	if (a.size() == 1) {
-		return 2;
+int go(int x, ll n) {
+	need[x] = need[x - 1] + need[x - 2];
+	if (need[x] == n) {
+		return x;
+	} else if (need[x] > n) {
+		return x - 1;
+	} else {
+		return go(x + 1, n);
 	}
-
-	auto p1 = mk(a, b);
-	auto p2 = mk(b, a);
-	if (p1.first == p1.second && p2.first == p2.second && p1.first != p2.first) {
-		return 2;
-	}
-	if (p1.first == p1.second) return 1; 
-	else return 0;
 }
 
 int main() {
     _upgrade;
-	int n;
-	string s, t;
-	cin >> n >> s >> t;
+	ll n;
+	cin >> n;
 
-	while (s.size() && s.back() == t.back()) {
-		s.pop_back();
-		t.pop_back();
-	}
+	need[0] = 1;
+	need[1] = 2;
 
-	int pos = 0;
-	For (i, s.size()) { 
-		if (s[i] != t[i]) {
-			pos = i;
-			break;
-		}
-	}
-
-	s = s.substr(pos, s.size() - pos);
-	t = t.substr(pos, t.size() - pos);
-
-	cout << max(solve(s, t), solve(t, s)) << "\n";
+	cout << go(2, n) << "\n";
 }
 

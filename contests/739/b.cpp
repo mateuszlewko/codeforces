@@ -28,51 +28,61 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-pair<string, string> mk(string a, string b) {
-	a.push_back(b.back());
-	b = string(1, a.front()) + b;
+const int N = 2 * 100 * 1000 + 10;
+vector<pii> G[N];
 
-	return {a, b};
-}
+int d[N];
+ll ans[N];
 
-int solve(string a, string b) {
-	if (a.size() != b.size()) return 0;
+ll rem_at[N];
+vector<pll> sum;
 
-	if (a.size() == 1) {
-		return 2;
+ll go_sum(int x, ll dist) {
+	int ix = 0;
+
+	if (sum.size() > 0) {
+		ix = (int)(lower_bound(sum.begin(), sum.end(), (pll){sum.back().first + dist - d[x], -1}) - sum.begin());
+	}
+		
+	int add = 0;
+
+	if (ix < sum.size()) {
+		rem_at[sum[ix].second]++;
+		add = 1;
 	}
 
-	auto p1 = mk(a, b);
-	auto p2 = mk(b, a);
-	if (p1.first == p1.second && p2.first == p2.second && p1.first != p2.first) {
-		return 2;
+	sum.push_back({sum.size() ? sum.back().first + dist : dist, x});
+
+	ll child_sum = 0;
+	for (auto y : G[x]) {
+		child_sum += go_sum(y.first, y.second);
 	}
-	if (p1.first == p1.second) return 1; 
-	else return 0;
+
+	ans[x] = child_sum;
+	sum.pop_back();
+
+	return child_sum + add - rem_at[x];
 }
 
 int main() {
     _upgrade;
+
 	int n;
-	string s, t;
-	cin >> n >> s >> t;
+	cin >> n;
 
-	while (s.size() && s.back() == t.back()) {
-		s.pop_back();
-		t.pop_back();
+	For (i, n) {
+		cin >> d[i + 1];
 	}
 
-	int pos = 0;
-	For (i, s.size()) { 
-		if (s[i] != t[i]) {
-			pos = i;
-			break;
-		}
+	For (i, n - 1) {
+		int p, dist;
+		cin >> p >> dist;
+		G[p].push_back({i + 2, dist});
 	}
 
-	s = s.substr(pos, s.size() - pos);
-	t = t.substr(pos, t.size() - pos);
-
-	cout << max(solve(s, t), solve(t, s)) << "\n";
+	go_sum(1, 0);
+	For (i, n) {
+		cout << ans[i + 1] << " ";
+	}
 }
 
