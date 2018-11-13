@@ -82,6 +82,8 @@ void ending(vector<pii> ps, int n) {
 	// }
 	// cout << "\n";
 
+	
+
 	while (ps.size()) {
 		vector<pii> new_ps;
 		for (auto p : ps) {
