@@ -28,19 +28,35 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 100 * 1000 + 10;
+int cnt[N];
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	int n, m;
+	cin >> n >> m;
+
+	int correct = 0;
+
+	For (i, m) {
+		int x;
+		cin >> x;
+
+		if (cnt[x] == 0) {
+			correct++;
+		}
+		cnt[x]++;
+
+		if (correct == n) {
+			cout << 1;
+			
+			for (int j = 1; j <= n; j++) {
+				cnt[j]--;
+				if (cnt[j] == 0) correct--;
+			}
+
+		} else cout << 0;
 	}
-
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
 }
 

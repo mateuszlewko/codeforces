@@ -28,19 +28,32 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+int A[20];
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
+	int n;
+	cin >> n;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	For (i, n) cin >> A[i];
+
+	For (i, (1<<n)) {
+		int deg = 0;
+		For (j, n) {
+			if (i & (1 << j)) {
+				deg += A[j];
+			}
+			else deg = deg - A[j] + 360;
+			
+			deg %= 360;
+		}
+
+		if (deg == 0) {
+			cout << "YES\n";
+			return 0;
+		}
 	}
-
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	cout << "NO\n";
+	return 0;
 }
 

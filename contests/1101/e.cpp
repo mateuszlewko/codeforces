@@ -30,17 +30,25 @@ typedef pair<ll, ll> pll;
 
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
+	int n;
+	cin >> n;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	pii best = {0, 0};
+
+	For (i, n) {
+		string s;
+		int x, y;
+		cin >> s >> x >> y;
+
+		if (s[0] == '+') {
+			best.first = max(min(x, y), best.first);
+			best.second = max(max(x, y), best.second);
+		} else {
+			pii q = {min(x,y), max(x,y)};
+			if (q.first >= best.first && q.second >= best.second) {
+				cout << "YES\n";
+			} else cout << "NO\n";
+		}
 	}
-
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
 }
 

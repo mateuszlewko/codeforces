@@ -28,19 +28,37 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 510;
+char A[N][N];
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	int n;
+	cin >> n;
+
+	For (i, n) {
+		For (j, n) {
+			cin >> A[i + 1][j + 1];
+		}
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	int cnt = 0;
+
+	for (int i = 1; i <= n; i++)
+		for (int j = 1; j <= n; j++) {
+			int c = 0;
+			int dx[] = {0, -1, -1, 1, 1};
+			int dy[] = {0, -1, 1, -1, 1};
+
+			For (k, 5) {
+				if (A[i + dx[k]][j + dy[k]] == 'X') c++;
+			}
+
+			if (c == 5) cnt++;
+		}
+
+
+	cout << cnt << "\n";
 }
 

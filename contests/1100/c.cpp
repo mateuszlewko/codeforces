@@ -25,22 +25,27 @@ void err(istream_iterator<string> it, T a, Args... args) {
 typedef long long ll;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
+typedef long double ld;
 
 #pragma endregion 
 
+constexpr double const_pi() { return std::atan(1)*4; }
+
+#define PI           3.14159265358979323846 
+
 int main() {
-    _upgrade;
-	string x;
-	cin >> x;
+    // _upgrade;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
-	}
+	ld n, r;
+	// cin >> n > r;
+	scanf("%Lf %Lf", &n, &r);
+	ld x = ((n - 2.0) / (2.0 * n)) * PI;
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	// printf("%.9Lf\n", (const_pi()));
+
+	error(x, cos(x));
+
+	ld ans = cos(x) / (1.0 - cos(x));
+	printf("%.9Lf\n", ans * r);
 }
 

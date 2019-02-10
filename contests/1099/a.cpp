@@ -30,17 +30,20 @@ typedef pair<ll, ll> pll;
 
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	int w, h;
+	cin >> w >> h;
+	int u1, d1, u2, d2;
+	cin >> u1 >> d1 >> u2 >> d2;
+
+	for (int i = h; i > 0; i--) {
+		w += i;
+		if (d1 == i) w -= u1;
+		if (d2 == i) w -= u2;
+
+		if (w < 0) w = 0;
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	cout << w << "\n";
 }
 

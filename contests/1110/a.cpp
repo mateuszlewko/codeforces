@@ -28,19 +28,24 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 100 * 1000 + 10;
+int A[N];
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
+	int b, k;
+	cin >> b >> k;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	For (i, k) cin >> A[i];
+
+	if (b % 2 == 0) {
+		if (A[k - 1] % 2 == 0) cout << "even\n";
+		else cout << "odd\n";
+	} else {
+		int cnt = 0;
+		For (i, k) if (A[i] % 2 == 1) cnt++;
+		if (cnt % 2 == 0) cout << "even\n";
+		else cout << "odd\n";
 	}
-
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
 }
 

@@ -28,19 +28,42 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 1000 * 1000 + 10;
+int pluses[N];
+int minuses[N];
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	int n;
+	cin >> n;
+	
+	For (i, n) {
+		string s;
+		cin >> s;
+		int curr = 0;
+		int m = 0;
+		For (j, (int)s.size()) {
+			if (s[j] == '(') curr++;
+			else curr--;
+
+			m = min(m, curr);
+		}
+
+		if (m >= 0 && curr >= 0) pluses[curr]++;
+		else if (curr < 0 && m >= curr) minuses[-curr]++;
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	int res = 0;
+	For (i, N) {
+		if (i == 0) {
+			res += pluses[i] / 2;
+		} else {
+			int mm = min(minuses[i], pluses[i]);
+			res += mm;
+		}
+	}
+
+	cout << res << "\n";
 }
 

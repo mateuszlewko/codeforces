@@ -28,19 +28,70 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 100 * 1000 + 10;
+vector<int> G[N];
+
+ll sum[N];
+ll ans[N];
+
+bool wrong = false;
+
+void go(bool odd, int x, ll curr_sum) {
+	if (odd) {
+		ll m = 1LL << 60;
+		for (int y : G[x]) {
+			m = min(sum[y], m);
+		}
+
+		if (m < curr_sum) {
+			wrong = true;
+			return;
+		}
+
+		if (m < (1LL<<60)) 
+			ans[x] = m - curr_sum;
+		else ans[x] = 0;
+
+		for (int y : G[x]) {
+			go(false, y, m);
+		}
+	} else {
+		ans[x] = sum[x] - curr_sum;
+		
+		if (ans[x] < 0) {
+			wrong = true;
+			return;
+		}
+
+		curr_sum = sum[x];
+		for (int y : G[x]) go(true, y, curr_sum);
+	}
+}
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	int n;
+	cin >> n;
+
+	For (i, n - 1) {
+		int p;
+		cin >> p;
+		G[p].push_back(i + 2);
+	} 
+
+	For (i, n) {
+		cin >> sum[i + 1];
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	go(false, 1, 0);
+	if (wrong) {
+		cout << "-1\n";
+	} else {
+		ll s = 0;
+		For (i, n + 2) s += ans[i];
+		cout << s << "\n";
+	}
+
 }
 

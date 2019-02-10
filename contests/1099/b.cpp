@@ -30,17 +30,16 @@ typedef pair<ll, ll> pll;
 
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
+	ll n;
+	cin >> n;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	ll mlen = 1;
+	for (ll i = 1; i * i <= n; i++) {
+		mlen = max(mlen, i);
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	if (mlen * mlen == n) cout << 2LL * mlen << "\n";
+	else if (n - mlen * mlen <= mlen) cout << 2LL * mlen + 1 << "\n";
+	else cout << 2LL * mlen + 2 << "\n";
 }
 

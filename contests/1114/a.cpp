@@ -29,18 +29,6 @@ typedef pair<ll, ll> pll;
 #pragma endregion 
 
 int main() {
-    _upgrade;
-	string x;
-	cin >> x;
-
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
-	}
-
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+    // _upgrade;
 }
 

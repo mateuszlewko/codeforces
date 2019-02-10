@@ -28,19 +28,47 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-int main() {
-    _upgrade;
-	string x;
-	cin >> x;
+const int N = 100 * 1000 + 10;
+vector<int> G[N];
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+bool vis[N];
+vector<int> res;
+
+set<int> can_go;
+
+void go(int x) {
+	if (vis[x]) return;
+	vis[x] = true;
+	res.push_back(x);
+
+	for (int y : G[x]) {
+		if (!vis[y]) can_go.insert(y);
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	if (can_go.size()) {
+		int y = *can_go.begin();
+		can_go.erase(can_go.begin());
+		return go(y);
+	}
+}
+
+int main() {
+    _upgrade;
+
+	int n, m;
+	cin >> n >> m;
+
+	For (i, m) {
+		int a, b;
+		cin >> a >> b;
+
+		G[a].push_back(b);
+		G[b].push_back(a);
+	}
+
+	go(1);
+	for (int x : res) {
+		cout << x << " ";
+	}
 }
 

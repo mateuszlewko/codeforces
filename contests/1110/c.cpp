@@ -28,19 +28,85 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-int main() {
-    _upgrade;
-	string x;
-	cin >> x;
+int find_max(int x) {
+	int best = 0;
+	int b = 0;
+	for (int i = 1; i < x; i++) {
+		int g = __gcd(x ^ i, x & i);
+		if (g > best) {
+			b = i;
+			best = g;
+		}
+	} 
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	return b;
+}
+
+int find_best(int x) {
+	int best = 0;
+	int b = 0;
+	for (int i = 1; i < x; i++) {
+		int g = __gcd(x ^ i, x & i);
+		if (g > best) {
+			b = i;
+			best = g;
+		}
+	} 
+
+	return best;
+}
+
+string bin(int x) {
+	string s;
+	while (x) {
+		s.push_back('0' + int(x & 1));
+		x >>= 1;
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	reverse(s.begin(), s.end());
+	return s;
+}
+
+ll ans(ll a, ll b) {
+	return __gcd(a ^ b, a & b);
+}
+
+int main() {
+    _upgrade;
+
+	int q;
+	cin >> q;
+
+	For (i, q) {
+		ll a;
+		cin >> a;
+		ll aa = a;
+
+		bool all_ones = true;
+		int cnt = 0;
+
+		while (a) {
+			if ((a&1) == 0) {
+				all_ones = false;
+			}
+
+			a >>= 1;
+			cnt++;
+		}
+
+
+		if (!all_ones) {
+			ll res = 0;
+			cout << (1LL<<cnt) - 1 << "\n";
+		} else {
+			ll best = 1;
+			for (ll j = 2; j * j <= aa; j++) {
+				if (aa % j == 0) best = max(best, max(j, aa / j));
+			}
+
+			cout << best << "\n";
+		}
+	}
+
 }
 

@@ -28,19 +28,40 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 100 * 1000 + 10;
+int A[N];
+int B[N];
+
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	int n;
+	cin >> n;
+	
+	vector<int> divsA, divsB;
+	For (i, n) {
+		cin >> A[i];
+		if (i > 0) divsA.push_back(A[i] - A[i - 1]);
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	For (i, n) {
+		cin >> B[i];
+		if (i > 0) divsB.push_back(B[i] - B[i - 1]);
+	}
+
+	SORT(divsA);
+	SORT(divsB);
+
+	bool all_same = true;
+	For (i, n - 1) {
+		if (divsA[i] != divsB[i]) {
+			all_same = false;
+			break;
+		}
+	}
+
+	if (A[0] == B[0] && all_same) cout << "Yes\n";
+	else cout << "No\n";
 }
 

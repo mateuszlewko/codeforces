@@ -28,19 +28,65 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 100 * 1000 + 10;
+int A[N];
+// int last_true = 0;
+
+// bool check(int len, int n, int k) {
+// 	int used = 0;
+// 	int next = 0;
+
+// 	while (true) {
+// 		int pos = lower_bound(A, A + n, next) - A;
+// 		if (pos == n) break;	
+
+// 		next = A[pos] + len;
+// 		used++;
+// 		// error(next);
+// 	}
+
+// 	return used <= k;
+// }
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	int n, m, k;
+	cin >> n >> m >> k;
+
+	vector<int> dists;
+	For (i, n) {
+		cin >> A[i];
+		if (i > 0) {
+			dists.push_back(A[i] - A[i - 1]);
+		}
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	SORT(dists);
+
+	ll res = 0;
+	For (i, max(0, n - k)) {
+		res += dists[i] - 1;
+	}
+
+	res += n;
+	cout << res << "\n";
+
+
+
+	// int beg = 0; 
+	// int end = m;
+
+	// while (beg != end - 1) {
+	// 	int mid = (beg + end) / 2;
+
+	// 	if (check(mid, n, k)) {
+	// 		end = mid;
+	// 	} else {
+	// 		beg = mid;
+	// 	}
+	// }
+
+	// cout << end << "\n";
 }
 

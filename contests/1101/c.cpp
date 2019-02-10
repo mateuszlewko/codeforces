@@ -28,19 +28,66 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 100 * 1000 + 10;
+pair<pii, int> A[N];
+int ans[N];
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	int t;
+	cin >> t;
+
+	while (t--) {
+		int n;
+		cin >> n;
+		For (i, n) {
+			cin >> A[i].first.first >> A[i].first.second;
+			A[i].second = i;
+		}
+
+		sort(A, A + n);
+		int end1 = 0;
+		int end2 = 0;
+
+
+		int fs_cnt = 0;
+		int sd_cnt = 0;
+
+		bool wrong = false;
+
+		For (i, n) {
+			pii seg = A[i].first;
+			int ix = A[i].second;
+
+			// error(seg.first, end1, end2, ix, seg.first<=end1);
+
+			if (seg.first <= end1 || fs_cnt == 0) {
+				if (seg.first <= end2) {
+					wrong = true;
+					break;
+				} 
+
+				end1 = max(end1, seg.second);
+				ans[ix] = 1;
+				fs_cnt++;
+			} else {
+				end2 = max(end2, seg.second);
+				ans[ix] = 2;
+				sd_cnt++;
+			}
+
+			// error(ans[ix]);
+		}
+
+		if (wrong || fs_cnt == 0 || sd_cnt == 0) {
+			cout << "-1\n";
+		} else {
+			For (i, n) {
+				cout << ans[i] << " ";
+			}
+			cout << "\n";
+		}
 	}
-
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
 }
 

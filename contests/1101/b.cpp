@@ -30,17 +30,45 @@ typedef pair<ll, ll> pll;
 
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	string s;
+	cin >> s;
+
+	int first_pos = -1;
+	bool was_open = false;
+
+	For (i, (int)s.size()) {
+		if (s[i] == '[') was_open = true;
+
+		if (was_open && s[i] == ':') {
+			first_pos = i + 1;
+			break;
+		}
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	int last_pos = -1;
+	bool was_close = false;
+
+	ForD (i, (int)s.size()) {
+		if (s[i] == ']') was_close = true;
+
+		if (was_close && s[i] == ':') {
+			last_pos = i;
+			break;
+		}
+	}
+
+	// error(first_pos, last_pos);
+
+	if (first_pos == -1 || last_pos == -1 || last_pos < first_pos) {
+		cout << "-1\n";
+	} else {
+		int extra = 0;
+		for (int i = first_pos; i < last_pos; i++) {
+			if (s[i] == '|') extra++;
+		}
+
+		cout << 4 + extra << "\n";
+	}
 }
 

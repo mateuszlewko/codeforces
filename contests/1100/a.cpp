@@ -28,19 +28,44 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+int A[120];
+
 int main() {
     _upgrade;
-	string x;
-	cin >> x;
 
-	bool ans = false;
-	For (i, 5) {
-		string a;
-		cin >> a;
-		if (a[0] == x[0] || a[1] == x[1]) ans = true;
+	int n, k;
+	cin >> n >> k;
+
+	int tot_pos = 0;
+	int tot_neg = 0;
+
+	For (i, n) {
+		cin >> A[i];
+
+		if (A[i] > 0) tot_pos++;
+		else tot_neg++;
 	}
 
-	if (ans) cout << "YES\n";
-	else cout << "NO\n";
+	int best = 0;
+	For (i, n) {
+		int pos = 0;
+		int neg = 0;
+		for (int j = i; j < n; j += k) {
+			if (A[j] < 0) neg++;
+			else pos++;
+		}
+
+		for (int j = i - k; j >= 0; j -= k) {
+			if (A[j] < 0) neg++;
+			else pos++;
+		}
+
+		pos = tot_pos - pos;
+		neg = tot_neg - neg;
+
+		best = max(best, abs(pos - neg));
+	}
+
+	cout << best << "\n";
 }
 
