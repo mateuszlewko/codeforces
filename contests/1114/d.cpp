@@ -28,16 +28,33 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 5010;
+int dp[N][N][2];
+int A[N];
+
 int main() {
     _upgrade;
 
-	int x, y, z;
-	cin >> x >> y >> z;
-	int a, b, c;
-	cin >> a >> b >> c;
+	int n;
+	cin >> n;
 
-	if (a >= x && (a + b) >= (x + y) && (a + b + c) >= (x + y + z)) {
-		cout << "YES\n";
-	} else cout << "NO\n";
+	For (i, n) cin >> A[i];
+
+	For (i, n) {
+		For (p, n) {
+			if (p + i >= n) break;
+			
+			if (i > 0) {
+				int res1 = dp[p + 1][p + i][0] + (A[p] == A[p + 1] ? 0 : 1);
+				int res2 = dp[p + 1][p + i][1] + (A[p] == A[p + i] ? 0 : 1);
+				int res3 = dp[p][p + i - 1][0] + (A[p] == A[p + i] ? 0 : 1);
+				int res4 = dp[p][p + i - 1][1] + (A[p + i - 1] == A[p + i] ? 0 : 1);
+				dp[p][p + i][0] = min(res1, res2);
+				dp[p][p + i][1] = min(res3, res4);
+			}
+		}
+	}
+
+	cout << min(dp[0][n - 1][0], dp[0][n - 1][1]) << "\n";
 }
 

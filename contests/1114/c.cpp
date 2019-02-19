@@ -28,7 +28,90 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+vector<pll> factor(ll x) {
+	vector<pll> res; 
+
+	ll a = x;
+	for (ll i = 2; i * i <= x; i++) {
+		if (i * i > a) break;
+		ll cnt = 0;
+		while (a % i == 0) {
+			cnt++;
+			a /= i;
+		}
+
+		if (cnt) res.push_back({i, cnt});
+	} 
+
+	if (a > 1) res.push_back({a, 1});
+	return res;
+}
+
+ll get_cnt(ll n, ll f) {
+	ll res = 0;
+	ll a = f;
+
+	while (true) {
+		ll add = n / a;
+		res += add;
+
+		if (add == 0) break;
+		a *= f;
+	}
+
+	return res; 
+}
+
 int main() {
-    // _upgrade;
+    _upgrade;
+
+	ll n, b;
+	cin >> n >> b;
+
+	auto fs = factor(b);
+	vector<ll> cnts; 
+
+	ll cnt5 = 0;
+	ll need5 = 0;
+	ll cnt2 = 0;
+	ll need2 = 0;
+
+	for (auto f : fs) {
+		ll c = get_cnt(n, f.first);
+		cnts.push_back(c / f.second);
+		if (f.first == 5) {
+			cnt5 = c;
+			need5 = f.second;
+		}
+
+		if (f.first == 2) {
+			cnt2 = c;
+			need2 = f.second;
+		}
+	}
+
+	ll res = (1LL<<60);
+	for (ll x : cnts) {
+		res = min(res, x);
+	}
+
+	cnt5 -= res * need5;
+	cnt2 -= res * need2;
+
+	assert(cnt2 >= 0);
+	assert(cnt5 >= 0);
+
+	ll c = b;
+	ll b_c = 0;
+	while (c) {
+		b_c += c % 10LL;
+		c /= 10LL;
+	}
+
+	if (b >= 10 && b_c == 1) {
+		// res += min(cnt5, cnt2);
+	}
+
+	cout << res << "\n";
 }
 

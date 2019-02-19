@@ -28,7 +28,43 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 2 * 100 * 1000;
+int A[N];
+bool wrong[N];
+
 int main() {
-    // _upgrade;
+    _upgrade;
+
+	int n, m, k;
+	cin >> n >> m >> k;
+
+	vector<pii> small;
+	ll sum = 0;
+	For (i, n) {
+		cin >> A[i];
+		sum += A[i];
+		small.push_back({A[i], i});
+	}
+
+	int left = n - m * k;
+	SORT(small);
+
+	For (i, left) {
+		sum -= A[small[i].second];
+		wrong[small[i].second] = true;
+	}
+
+	cout << sum << "\n";
+	int cnt = 0;
+	int res = 0;
+
+	For (i, n) {
+		if (!wrong[i]) cnt++;
+		if (cnt == m && i != n - 1 && res != k - 1) {
+			cout << i + 1 << " ";
+			res++;
+			cnt = 0;
+		}
+	}
 }
 

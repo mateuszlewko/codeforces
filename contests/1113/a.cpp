@@ -30,14 +30,18 @@ typedef pair<ll, ll> pll;
 
 int main() {
     _upgrade;
+	int n, v;
 
-	int x, y, z;
-	cin >> x >> y >> z;
-	int a, b, c;
-	cin >> a >> b >> c;
+	ll ans = 0;
+	cin >> n >> v;
+	int cap = 0;
+	for (int i = 1; i <= n; i++) {
+		int add = min(v - cap, (n - i) - cap);
+		ans += i * add;
+		cap += add;
+		cap--;
+	}
 
-	if (a >= x && (a + b) >= (x + y) && (a + b + c) >= (x + y + z)) {
-		cout << "YES\n";
-	} else cout << "NO\n";
+	cout << ans << "\n";
 }
 

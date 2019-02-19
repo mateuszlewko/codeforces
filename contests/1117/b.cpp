@@ -28,16 +28,27 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 2 * 100 * 1000 + 10;
+ll A[N];
+
 int main() {
     _upgrade;
 
-	int x, y, z;
-	cin >> x >> y >> z;
-	int a, b, c;
-	cin >> a >> b >> c;
+	int n, m, k;
+	cin >> n >> m >> k;
 
-	if (a >= x && (a + b) >= (x + y) && (a + b + c) >= (x + y + z)) {
-		cout << "YES\n";
-	} else cout << "NO\n";
+	For (i, n) {
+		cin >> A[i];
+	}
+
+	sort(A, A + n);
+
+	ll mx1 = A[n - 1];
+	ll mx2 = A[n - 2];
+
+	ll cyc = k + 1;
+	ll cyc_cnt = m / cyc;
+
+	cout << (cyc_cnt * (mx1 * k + mx2)) + (m % cyc) * mx1 << "\n";
 }
 

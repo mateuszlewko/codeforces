@@ -28,16 +28,37 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 3 * 100 * 1000;
+int A[N];
+
 int main() {
     _upgrade;
+	int n;
 
-	int x, y, z;
-	cin >> x >> y >> z;
-	int a, b, c;
-	cin >> a >> b >> c;
+	cin >> n;
 
-	if (a >= x && (a + b) >= (x + y) && (a + b + c) >= (x + y + z)) {
-		cout << "YES\n";
-	} else cout << "NO\n";
+	For (i, n) {
+		int x;
+		cin >> x;
+		A[i + 1] = A[i] ^ x;
+	}
+
+	unordered_map<int, int> even, odd;
+	if (n % 2 == 0) even[A[n]]++;
+	else odd[A[n]]++;
+
+	ll res = 0;
+	ForD (i, n) {
+		if (i % 2 == 0) {
+			res += even[A[i]];
+		} else {
+			res += odd[A[i]];
+		}
+
+		if (i % 2 == 0) even[A[i]]++;
+		else odd[A[i]]++;
+	}
+
+	cout << res << "\n";
 }
 

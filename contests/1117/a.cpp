@@ -23,21 +23,40 @@ void err(istream_iterator<string> it, T a, Args... args) {
 #define _upgrade do { ios::sync_with_stdio(0); cin.tie(0); } while (0)
 
 typedef long long ll;
+typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 100 * 1000 + 10;
+ll A[N];
+
 int main() {
     _upgrade;
 
-	int x, y, z;
-	cin >> x >> y >> z;
-	int a, b, c;
-	cin >> a >> b >> c;
+	int n;
+	cin >> n;
+	ll mx = 0;
 
-	if (a >= x && (a + b) >= (x + y) && (a + b + c) >= (x + y + z)) {
-		cout << "YES\n";
-	} else cout << "NO\n";
+	For (i, n) {
+		cin >> A[i];
+		mx = max(mx, A[i]);
+	}
+
+	ll len = 1;
+	ll curr = 0;
+
+	For (i, n) {
+		if (A[i] == mx) {
+			curr++;
+			len = max(len, curr);
+		} else {
+			curr = 0;
+		}
+	}
+	
+	len = max(len, curr);
+	cout << len << "\n";
 }
 
