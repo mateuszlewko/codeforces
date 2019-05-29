@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -90,43 +93,134 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
+unordered_map<int, int> large2small;
+const int N = 100 * 1000 + 10;
+pii A[N];
 
-bool cant_take[N];
-bool has_edge[N]; 
+const int TREE_N = 1<<19; 
+int max_from_bottom[TREE_N * 4];
+int add_on_me[TREE_N * 4];
 
-int main() {
-    _upgrade;
-
-	int n, m;
-	read(n, m);
-
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
-
-	For (i, m) {
-		int q, p;
-		read(p, q);
-
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+void update(int x) {
+	int children_max = 0;
+	if (x < TREE_N) {
+		children_max = max(max_from_bottom[x * 2], max_from_bottom[x * 2 + 1]);
 	}
 
-	unordered_set<int> cant_pass;
-
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
-
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
-
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+	max_from_bottom[x] = children_max + add_on_me[x];
 }
 
+void push_go(int l, int r, int x, int p, int q) {
+	if (p >= l && r >= q) {
+		// cout << "added on --> ";
+		// error(l, r, p, q, x);
+		// cout << endl;
+		add_on_me[x]++;
+		update(x);
+
+		return;
+	}
+
+	int mid = (p + q) / 2;
+	if (l <= mid) {
+		push_go(l, min(r, mid), x * 2, p, mid);
+	}
+
+	if (r > mid) {
+		push_go(max(l, mid + 1), r, x * 2 + 1, mid + 1, q);
+	}
+
+	update(x);
+}
+
+void push(int l, int r) {
+	push_go(l, r, 1, 0, TREE_N - 1);
+}
+
+int query_res;
+
+void query_go(int l, int r, int x, int p, int q, int from_top) {
+	if (p >= l && r >= q) {
+		// error(x, p, q, max_from_bottom[x], from_top);
+		query_res = max(query_res, max_from_bottom[x] + from_top);
+		return;
+	}
+
+	// error(l, r);
+
+	int mid = (p + q) / 2;
+	int from_me = from_top + add_on_me[x];
+
+	if (l <= mid) {
+		query_go(l, min(r, mid), x * 2, p, mid, from_me);
+	}
+
+	if (r > mid) {
+		query_go(max(mid + 1, l), r, x * 2 + 1, mid + 1, q, from_me);
+	}
+}
+
+int query(int l, int r) {
+	query_res = 0;
+	query_go(l, r, 1, 0, TREE_N - 1, 0);
+	return query_res;
+} 
+
+int main() {
+	_upgrade;
+
+	int n, k;
+
+	vector<int> ps;
+
+	cin >> n >> k;
+
+	For (i, n) {
+		int x, y;
+		cin >> x >> y;
+
+		x++;
+		A[i] = {x, y};
+		ps.push_back(x);
+		ps.push_back(y);
+	}
+
+	SORT(ps);
+
+	for (int p : ps) {
+		if (large2small.count(p) == 0) {
+			int x = large2small.size() + 1;
+			large2small[p] = x;
+		}
+	}
+
+	auto cmp = [](pii lhs, pii rhs) {
+		if (lhs.second != rhs.second) {
+			return lhs.second < rhs.second;
+		}
+
+		return lhs.first >= rhs.first;
+	};
+
+	sort(A, A + n, cmp);
+
+	int res = 0;
+	For (i, n) {
+		int l = large2small[A[i].first];
+		int r = large2small[A[i].second];
+		// error(A[i].first, A[i].second, l, r);
+		// int q = query(l, r);
+		// error(q);
+
+		if (query(l, r) < k) {
+			// cout << "pushing\n";
+			// error(l, r);
+			// cout << endl;
+
+			push(l, r);
+			res++;
+		}
+	}
+
+	cout << res << "\n";
+}

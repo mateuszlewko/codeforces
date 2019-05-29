@@ -1,30 +1,11 @@
-#pragma region Template 
 #include <bits/stdc++.h> 
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -88,45 +69,76 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-#pragma endregion 
+int b[142];
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
-
-bool cant_take[N];
-bool has_edge[N]; 
+void readli(string& s)
+{
+  while (s.empty())
+    getline(cin, s);
+}
 
 int main() {
-    _upgrade;
+	_upgrade;
+
+	#ifndef LOCAL
+  freopen("tests.in", "r", stdin);
+  freopen("tests.out", "w", stdout);
+  #endif
 
 	int n, m;
-	read(n, m);
+  cin >> n >> m;
+  for (int i=0; i<m; i++)
+  {
+    cin >> b[i];
+  }
+  bool passed = false;
+  for (int i=0; i<n; i++)
+  {
+    string fac;
+    readli(fac);
+    int score = 0;
+    int te;
+    cin >> te;
+    vector<int> tests;
+    for (int j=0; j<te; j++)
+    {
+      int t;
+      cin >> t;
+      tests.push_back(t-1);
+    }
+    for (int j=0; j<te; j++)
+    {
+      int x, y, z;
+      cin >> x >> y >> z;
+      if (b[tests[j]] < x)
+        score += 2;
+      else if (b[tests[j]] < y)
+        score += 3;
+      else if (b[tests[j]] < z)
+        score += 4;
+      else
+        score += 5;
+    }
+    int facs;
+    cin >> facs;
+    for (int j=0; j<facs; j++)
+    {
+      string name;
+      int p;
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+      readli(name);
+      cin >> p;
+      if (score >= p)
+      {
+        cout << fac << " " << name << "\n";
+        passed = true;
+      }
+    }
+  }
+  if (!passed)
+  {
+    cout << "Army\n";
+  }
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
-
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
-	}
-
-	unordered_set<int> cant_pass;
-
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
-
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
-
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
 }
 

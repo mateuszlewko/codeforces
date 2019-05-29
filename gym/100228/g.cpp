@@ -1,30 +1,11 @@
-#pragma region Template 
 #include <bits/stdc++.h> 
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -88,45 +69,81 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-#pragma endregion 
+const int N = 150;
+bitset<N> A[N];
+map<pair<pii, pii>, int>  M;
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
-
-bool cant_take[N];
-bool has_edge[N]; 
-
-int main() {
-    _upgrade;
-
-	int n, m;
-	read(n, m);
-
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
-
-	For (i, m) {
-		int q, p;
-		read(p, q);
-
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+int get_col(int x, int y, int len) {
+	int col = 2;
+	for (int i = x; i < x + len; i++) {
+		for (int j = y; j < y + len; j++) {
+			if (col == 2) col = A[i][j];
+			else if (col != A[i][j]) return 2;
+		}
 	}
 
-	unordered_set<int> cant_pass;
+	return col;
+}
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+int leaf_cnt = 0;
+int vertex_cnt = 0;
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+int get_num(int x, int y, int len) {
+	int col = get_col(x, y, len);
+	vertex_cnt++;
+	if (col != 2) {
+		leaf_cnt++;
+		return col;
+	}
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+	error(x, y, len, col);
+	len /= 2;
+
+	int a = get_num(x, y, len);
+	int b = get_num(x, y + len, len);
+	int c = get_num(x + len, y, len);
+	int d = get_num(x + len, y + len, len);
+
+	pair<pii, pii> hs = {{a, b}, {c, d}};
+
+	if (M.count(hs) == 0) {
+		int id = int(M.size());
+		return M[hs] = id;
+	} else return M[hs];
+}
+
+void solve(int n, int m) {
+	M.clear();
+	leaf_cnt = 0;
+	vertex_cnt = 0;
+
+	int k = max(n, m);
+	while (__builtin_popcount(k) != 1) k++;
+	
+	For (i, k + 2) A[i].reset();
+
+	For (i, n) {
+		For (j, m) {
+			char c;
+			cin >> c;
+			A[i][j] = c == '1';
+		}
+	}
+
+	int num = get_num(0, 0, k);
+	error(num, leaf_cnt);
+	cout << vertex_cnt << " " <<  num + leaf_cnt << "\n";
+}
+
+int main() {
+	_upgrade;
+
+	while (true) {
+		int n, m;
+		cin >> n >> m;
+
+		if (n == 0 && m == 0) return 0;
+		solve(n, m);
+	}
 }
 

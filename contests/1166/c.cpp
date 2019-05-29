@@ -3,28 +3,10 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -44,6 +26,21 @@ template <class T> ostream &operator<<(ostream &os, const vector<T> &container) 
 	for (auto &u : container) os << u << " ";
 	return os;
 }
+
+template <class T, class U> ostream &operator<<(ostream &os, const pair<T, U> &p) {
+	os << p.first << " " << p.second;
+	return os;
+}
+
+#include <ext/pb_ds/assoc_container.hpp> // Common file
+#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
+// #include <ext/pb_ds/detail/standard_policies.hpp>
+
+using namespace __gnu_pbds; 
+using namespace std; 
+
+template<typename T>
+using pb_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 #if DEBUG
 #define error(args...) { string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss); err(_it, args); }
@@ -75,43 +72,51 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+pb_set<int> Q;
 
-const int N = 510;
-const int INF = 1<<30;
+ll cnt_interval(int x, int y, bool rot = false) {
+	if (!rot && x > y) return 0;
 
-int dp[N][N];
-char A[N];
+	if (x > y) swap(x, y);
+	// error(x, y);
+	ll r = Q.order_of_key(y + 1);
+	ll l = Q.order_of_key(x);
+
+	// error(l, r);
+	return r - l;
+}
+
+const int N = 200 * 1000 + 10;
+int A[N];
 
 int main() {
-    _upgrade;
+	_upgrade;
 
 	int n;
-	read(n);
-
-	For (i, n) read(A[i]);
+	cin >> n;
 
 	For (i, n) {
-		For (p, n) {
-			if (p + i >= n)	break;
-
-			if (i == 0) {
-				dp[p][p] = 1;
-			} else {
-				int res = dp[p][p + i - 1] + 1;
-				char last = A[p + i];
-
-				For (k, i) {
-					if (A[p + k] == last) {
-						int last_part = (k + 1 <= i - 1 ? dp[p + k + 1][p + i - 1] : 0);
-						res = min(res, dp[p][p + k] + last_part);
-					}
-				}
-
-				dp[p][p + i] = res;
-			}
-		}
+		cin >> A[i];
+		Q.insert(A[i]);
 	}
 
-	writeln(dp[0][n - 1]);
+	ll cnt = 0;
+	For (i, n) {
+		int x = A[i];
+
+		// cout << "----- " << x << " -----" << endl;
+
+		ll a = cnt_interval(x, 2 * x, true) - 1;
+		ll a2 = cnt_interval(-x, -2 * x, true) + (x != 0 ? 0 : -1);
+		ll b = cnt_interval( -(abs(x) - 1), -((abs(x) + 1) / 2));
+		ll c = cnt_interval(((abs(x) + 1) / 2), (abs(x) - 1));
+
+		// error(a, a2, b, c);
+		cnt += a + a2 + b + c;
+	}
+
+	// assert(cnt % 2 == 0);
+	error(cnt);
+	cout << cnt / 2 << "\n";
 }
 

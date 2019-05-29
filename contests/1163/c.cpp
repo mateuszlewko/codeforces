@@ -3,28 +3,10 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -90,43 +72,83 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
+map<pll, ll> cnt;
 
-bool cant_take[N];
-bool has_edge[N]; 
+ll sign(ll x) {
+	if (x < 0) return -1;
+	if (x == 0) return 0;
+	return 1;
+}
+
+const ll INF = (1LL<<61) + 31739LL;
+
+pll get(ll top, ll bot) {
+	if (bot == 0) return {INF, INF};
+	ll s = sign(bot);
+	ll d = __gcd(abs(top), abs(bot));
+
+	return {(s * top) / d, (s * bot) / d};
+}
+
+const int N = 1010;
+pll A[N];
 
 int main() {
-    _upgrade;
+	_upgrade;
 
-	int n, m;
-	read(n, m);
+	int n;
+	cin >> n;
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+	For (i, n) cin >> A[i].first >> A[i].second;
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
+	set<pair<pll, pll>> ls;
 
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+	For (i, n) {
+		for (int j = i + 1; j < n; j++) {
+			ll a = A[i].second - A[j].second;
+			ll b = A[j].first - A[i].first;
+			ll c = A[i].first * A[j].second - A[j].first * A[i].second;
+
+			pll p1 = get(a, b);
+			pll p2 = b != 0 ? get(c, b) : get(c, a);
+			
+			ls.insert({p1, p2});
+
+			// cnt[{p1, p2}]++;
+		}
 	}
 
-	unordered_set<int> cant_pass;
+	ll total = 0;
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+	for (auto l : ls) {
+		pll p1 = l.first;
+		// pll p2 = l.second;
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+		// error(l);
+		cnt[p1]++;
+	}
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+	// error(ls.size());
+
+	for (auto l : ls) {
+		pll p1 = l.first;
+		// pll p2 = l.second;
+
+		ll common = cnt[p1];
+		total += ll(ls.size()) - common;
+	}
+
+	// ll lines = (ll)n * (n - 1) / 2LL;
+	// ll total = lines * (lines - 1) / 2;
+
+	// for (auto it : cnt) {
+	// 	error(it);
+
+	// 	ll c = it.second;
+	// 	total -= c * (c - 1) / 2;
+	// }
+
+	assert(total >= 0);
+	cout << total / 2LL << "\n";
 }
 

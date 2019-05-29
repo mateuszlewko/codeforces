@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -44,6 +47,21 @@ template <class T> ostream &operator<<(ostream &os, const vector<T> &container) 
 	for (auto &u : container) os << u << " ";
 	return os;
 }
+
+template <class T, class U> ostream &operator<<(ostream &os, const pair<T, U> &p) {
+	os << p.first << " " << p.second;
+	return os;
+}
+
+#include <ext/pb_ds/assoc_container.hpp> // Common file
+#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
+// #include <ext/pb_ds/detail/standard_policies.hpp>
+
+using namespace __gnu_pbds; 
+using namespace std; 
+
+template<typename T>
+using pb_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 #if DEBUG
 #define error(args...) { string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss); err(_it, args); }
@@ -75,43 +93,72 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+pii do_cnt(const string &s) {
+	int cnt = 0;
+	int qs_cnt = 0;
 
-const int N = 510;
-const int INF = 1<<30;
+	for (char c : s) {
+		if (c == '(') cnt++;
+		else if (c == ')') cnt--;
+		else qs_cnt++;
+	}
 
-int dp[N][N];
-char A[N];
+	return {cnt, qs_cnt};
+}
+
+bool is_ok(const string &s) {
+	int cnt = 0;
+	For (i, int(s.size())) {
+		char c = s[i];
+
+		if (c == '(') cnt++;
+		else cnt--;
+
+		if (cnt < 0) return false;
+		if (cnt == 0 && i < int(s.size()) - 1) return false;
+	}
+
+	return cnt == 0;
+}
 
 int main() {
     _upgrade;
 
 	int n;
-	read(n);
+	cin >> n;
+	string s;
+	cin >> s;
 
-	For (i, n) read(A[i]);
+	pii tt = do_cnt(s);
+	int init_cnt = tt.first;
+	int qs = tt.second;
 
-	For (i, n) {
-		For (p, n) {
-			if (p + i >= n)	break;
-
-			if (i == 0) {
-				dp[p][p] = 1;
-			} else {
-				int res = dp[p][p + i - 1] + 1;
-				char last = A[p + i];
-
-				For (k, i) {
-					if (A[p + k] == last) {
-						int last_part = (k + 1 <= i - 1 ? dp[p + k + 1][p + i - 1] : 0);
-						res = min(res, dp[p][p + k] + last_part);
-					}
-				}
-
-				dp[p][p + i] = res;
-			}
+	int open_cnt = -1;
+	for (int i = 0; i <= qs; i++) {
+		if (i + init_cnt - (qs - i) == 0) {
+			open_cnt = i;
+			break;
 		}
 	}
 
-	writeln(dp[0][n - 1]);
+	if (open_cnt == -1) {
+		cout << ":(\n";
+		return 0;
+	}
+
+	string res;
+	int used_open = 0;
+	for (char c : s) {
+		if (c == '?' && used_open < open_cnt) {
+			used_open++;
+			res.push_back('(');
+		} else if (c == '?') res.push_back(')');
+		else res.push_back(c);
+	}
+
+	if (!is_ok(res)) {
+		cout << ":(\n";
+		return 0;
+	} else cout << res << "\n";
 }
 

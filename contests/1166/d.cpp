@@ -3,28 +3,10 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -90,43 +72,69 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
-
-bool cant_take[N];
-bool has_edge[N]; 
-
 int main() {
-    _upgrade;
+	_upgrade;
 
-	int n, m;
-	read(n, m);
+	int q;
+	cin >> q;
+	while (q--) {
+		ll a, b, m;
+		cin >> a >> b >> m;
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+		if (a == b) {
+			cout << 1 << " " << a << "\n";
+			continue;
+		}
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
+		int found_k = -1;
+		for (int k = 1; k <= 49; k++) {
+			ll beg = (1 << (k - 1)) * a + (1 << (k - 1));
+			ll end = (1 << (k - 1)) * a + m * (1 << (k - 1));
 
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+			error(beg, end);
+			
+			if (b >= beg && b <= end) {
+				found_k = k;
+				break;
+			}
+
+			if (beg > b) break;
+		}
+
+		if (found_k == -1) {
+			cout << "-1\n";
+			continue;
+		}
+
+		vector<ll> ans(found_k + 1, 0);
+		ans[0] = a;
+
+		ll k = found_k;
+		ll extra_left = b - (1 << (k - 1)) * a - (1 << (k - 1));
+		error(k, extra_left);
+
+		ll current_add = 0;
+
+		for (int i = 1; i <= k; i++) {
+			ll left_steps = k - i + 1;
+			ll left_steps_pow = 1 << (left_steps - 1);
+			ll add_cnt = min(m - 1, extra_left / left_steps_pow);
+			ll add_val = add_cnt * left_steps_pow;
+
+			error(i, extra_left, add_cnt, add_val);
+			
+			extra_left -= add_val;
+
+			ans[i] = (1 << (i - 1)) * a + add_cnt + current_add + 1;
+
+			current_add += add_cnt + 1 + current_add;
+		}
+
+		// assert(extra_left == 0);
+		// assert(ans.back() == b);
+
+		ans[ans.size() - 1] = b;
+		cout << ans.size() << " " << ans << "\n";
 	}
-
-	unordered_set<int> cant_pass;
-
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
-
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
-
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
 }
 

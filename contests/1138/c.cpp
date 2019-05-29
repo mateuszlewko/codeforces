@@ -45,6 +45,21 @@ template <class T> ostream &operator<<(ostream &os, const vector<T> &container) 
 	return os;
 }
 
+template <class T, class U> ostream &operator<<(ostream &os, const pair<T, U> &p) {
+	os << p.first << " " << p.second;
+	return os;
+}
+
+#include <ext/pb_ds/assoc_container.hpp> // Common file
+#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
+// #include <ext/pb_ds/detail/standard_policies.hpp>
+
+using namespace __gnu_pbds; 
+using namespace std; 
+
+template<typename T>
+using pb_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
+
 #if DEBUG
 #define error(args...) { string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss); err(_it, args); }
 void err(istream_iterator<string>) {}
@@ -75,43 +90,40 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 1005;
+pb_set<int> row[N], col[N];
+int A[N][N];
 
-const int N = 510;
-const int INF = 1<<30;
+int gt_cnt(pb_set<int> &S, int x) {
+	return (int)S.size() - (int)S.order_of_key(x + 1);
+}
 
-int dp[N][N];
-char A[N];
+int lt_cnt(pb_set<int> &S, int x) {
+	return (int)S.order_of_key(x);
+}
 
 int main() {
     _upgrade;
 
-	int n;
-	read(n);
-
-	For (i, n) read(A[i]);
+	int n, m;
+	read(n, m);
 
 	For (i, n) {
-		For (p, n) {
-			if (p + i >= n)	break;
-
-			if (i == 0) {
-				dp[p][p] = 1;
-			} else {
-				int res = dp[p][p + i - 1] + 1;
-				char last = A[p + i];
-
-				For (k, i) {
-					if (A[p + k] == last) {
-						int last_part = (k + 1 <= i - 1 ? dp[p + k + 1][p + i - 1] : 0);
-						res = min(res, dp[p][p + k] + last_part);
-					}
-				}
-
-				dp[p][p + i] = res;
-			}
+		For (j, m) {
+			read(A[i][j]);
+			row[i].insert(A[i][j]);
+			col[j].insert(A[i][j]);
 		}
 	}
 
-	writeln(dp[0][n - 1]);
-}
+	For (i, n) {
+		For (j, m) {
+			int x = A[i][j];
+			int lt = max(lt_cnt(row[i], x), lt_cnt(col[j], x));
+			int gt = max(gt_cnt(row[i], x), gt_cnt(col[j], x));
+			write(lt + gt + 1);
+		}
 
+		writeln();
+	}
+}

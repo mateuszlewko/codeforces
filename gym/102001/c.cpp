@@ -1,30 +1,11 @@
-#pragma region Template 
 #include <bits/stdc++.h> 
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -88,45 +69,91 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-#pragma endregion 
+int di[1000042];
+vector<int> p1[1000042];
+int dp[1000042];
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
+void init()
+{
+  for (int i=2; i<1000042; i++)
+  {
+    if (p1[i].empty())
+    {
+      for (int j=i; j<1000042; j+=i)
+      {
+        p1[j].push_back(i);
+      }
+    }
 
-bool cant_take[N];
-bool has_edge[N]; 
+    di[i] = 1;
+    for (int k : p1[i])
+    {
+      di[i] *= k;
+    }
+    
+  }
+}
 
 int main() {
-    _upgrade;
+	_upgrade;
 
-	int n, m;
-	read(n, m);
+	#ifndef DEBUG
+  freopen("rifleman.in", "r", stdin);
+  freopen("rifleman.out", "w", stdout);
+  #endif
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+  init();
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
+  int n,m;
+  cin >> n >> m;
+  if (n == 1 || m == 1)
+  {
+    cout << (n*m > 1 ? 1 : 0) << "\n";
+    return 0;
+  }
+  ll ans = n-1;
+  dp[1] = n-1;
+  for (int i=2; i<m; i++)
+  {
+    if (di[i] != i)
+    {
+      dp[i] = dp[di[i]];
+    }
+    else
+    {
+      dp[i] = n-1;
 
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
-	}
+      vector<int> divs;
+      divs.push_back(p1[i][0]);
+      for (int k=1; k<p1[i].size(); k++)
+      {
+        vector<int> new_divs;
+        for (auto p2 : divs)
+        {
+          new_divs.push_back(p2*p1[i][k]);
+        }
+        for (auto p2 : new_divs)
+          divs.push_back(p2);
 
-	unordered_set<int> cant_pass;
+        divs.push_back(p1[i][k]);
+      }
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+      for (int d : divs)
+      {
+        if (p1[d].size()%2)
+          dp[i] -= (n-1) / d;
+        else
+          dp[i] += (n-1) / d;
+        
+      }
+    }
+    ans += dp[i];
+    //cout << i << " " << dp[i] << "\n";
+    
+  }
+  cout << ans+2 << "\n";
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+	
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
 }
 

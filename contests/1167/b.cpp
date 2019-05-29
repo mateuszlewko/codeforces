@@ -3,28 +3,10 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -90,43 +72,71 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
-
-bool cant_take[N];
-bool has_edge[N]; 
+int ask(int i, int j) {
+	cout << "? " << i << " " << j << endl;
+	int x;
+	cin >> x;
+	return x;
+}
 
 int main() {
-    _upgrade;
+	_upgrade;
 
-	int n, m;
-	read(n, m);
+	int a[] = {4, 8, 15, 16, 23, 42};
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+	map<int, pii> M;
+	set<int> left;
+	
+	For (i, 6) {
+		left.insert(a[i]);
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
+		for (int j = i + 1; j < 6; j++) {
+			M[a[i] * a[j]] = {a[i], a[j]};
+		}
+	} 
 
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+	pii ans[] = {M[ask(1, 2)], M[ask(2, 3)], M[ask(4, 5)], M[ask(5, 6)]};
+
+	cout << "! ";
+
+	int dx[] = {0, 2};
+
+	For (i, 2) {
+		int x = dx[i];
+
+		if (ans[x].first != ans[x + 1].first && ans[x].first != ans[x + 1].second) {
+			cout << ans[x].first << " ";
+		} else {
+			cout << ans[x].second << " ";
+		}
+
+		if (ans[x + 1].first == ans[x].first || ans[x + 1].first == ans[x].second) {
+			cout << ans[x + 1].first << " " << ans[x + 1].second << " ";
+		} else {
+			cout << ans[x + 1].second << " " << ans[x + 1].first << " ";
+		}
 	}
 
-	unordered_set<int> cant_pass;
+	// For (i, 4) {
+	// 	if ((i != 3 && ans[i].first != ans[i + 1].first && ans[i].first != ans[i + 1].second) ||
+	// 	   (i == 3 && (ans[i].first != ans[i - 1].first || ans[i].first != ans[i - 1].second ))) {
+	// 		cout << ans[i].first << " ";
+	// 		left.erase(ans[i].first);
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+	// 		if (i == 3) {
+	// 			left.erase(ans[i].second);
+	// 			cout << ans[i].second << " ";
+	// 		}
+	// 	} else {
+	// 		left.erase(ans[i].second);
+	// 		cout << ans[i].second << " ";
+	// 		if (i == 3) {
+	// 			left.erase(ans[i].first);
+	// 			cout << ans[i].first << " ";
+	// 		}
+	// 	}
+	// }
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
-
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+	// cout << (*left.begin());
 }
 

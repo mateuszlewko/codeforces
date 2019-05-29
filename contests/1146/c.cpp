@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -44,6 +47,21 @@ template <class T> ostream &operator<<(ostream &os, const vector<T> &container) 
 	for (auto &u : container) os << u << " ";
 	return os;
 }
+
+template <class T, class U> ostream &operator<<(ostream &os, const pair<T, U> &p) {
+	os << p.first << " " << p.second;
+	return os;
+}
+
+#include <ext/pb_ds/assoc_container.hpp> // Common file
+#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
+// #include <ext/pb_ds/detail/standard_policies.hpp>
+
+using namespace __gnu_pbds; 
+using namespace std; 
+
+template<typename T>
+using pb_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 #if DEBUG
 #define error(args...) { string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss); err(_it, args); }
@@ -75,43 +93,60 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+vector<int> cmp_sets[10][2];
 
-const int N = 510;
-const int INF = 1<<30;
+void go(int lvl, int beg, int end) {
+	if (beg >= end) return;
 
-int dp[N][N];
-char A[N];
+	// error(lvl, beg, end);
 
-int main() {
-    _upgrade;
-
-	int n;
-	read(n);
-
-	For (i, n) read(A[i]);
-
-	For (i, n) {
-		For (p, n) {
-			if (p + i >= n)	break;
-
-			if (i == 0) {
-				dp[p][p] = 1;
-			} else {
-				int res = dp[p][p + i - 1] + 1;
-				char last = A[p + i];
-
-				For (k, i) {
-					if (A[p + k] == last) {
-						int last_part = (k + 1 <= i - 1 ? dp[p + k + 1][p + i - 1] : 0);
-						res = min(res, dp[p][p + k] + last_part);
-					}
-				}
-
-				dp[p][p + i] = res;
-			}
-		}
+	int mid = (beg + end) / 2;
+	
+	for (int i = beg; i <= mid; i++) {
+		cmp_sets[lvl][0].push_back(i);
 	}
 
-	writeln(dp[0][n - 1]);
+	for (int j = mid + 1; j <= end; j++) {
+		cmp_sets[lvl][1].push_back(j);
+	}
+
+	go(lvl + 1, beg, mid);
+	go(lvl + 1, mid + 1, end);
+}
+
+int ask(int lvl) {
+	int k1 = cmp_sets[lvl][0].size();
+	int k2 = cmp_sets[lvl][1].size();
+
+	// error(lvl, k1, k2);
+
+	if (k1 == 0 || k2 == 0) return 0;
+	cout << k1 << " " << k2 << " " << cmp_sets[lvl][0] << cmp_sets[lvl][1] << endl;
+
+	int x;
+	cin >> x;
+	return x;
+}
+
+int main() {
+    // _upgrade;
+
+	int t;
+	cin >> t;
+
+	while (t--) {
+		int n; 
+		cin >> n;
+
+		go(0, 1, n);
+		int ans = 0;
+		For (i, 9) ans = max(ans, ask(i));
+
+		cout << "-1 " << ans << endl;
+
+		For (i, 10) {
+			For (j, 2) cmp_sets[i][j].clear();
+		}
+	}
 }
 

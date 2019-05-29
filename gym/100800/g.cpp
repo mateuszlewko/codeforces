@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -90,43 +93,114 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
+int convert(const string& s, int after_comma) {
+	int res = 0;
+	bool was_comma = false;
 
-bool cant_take[N];
-bool has_edge[N]; 
+	For (i, s.size()) {
+		if (s[i] == '.') {
+			was_comma = true;
+			continue;
+		}
+
+		if (was_comma) after_comma--;
+
+		res *= 10;
+		res += s[i] - '0';
+	}
+
+	while (after_comma != 0);
+
+	return res;
+}
+
+int read_fix(int after_comma) {
+	string s;
+	cin >> s;
+
+	return convert(s, after_comma);
+}
+
+int get_units(string sz) {
+	if (sz[2] == '1') return 1000 * 3;
+	if (sz[2] == '2') return 500 * 3;
+	if (sz[2] == '3') return 1000;
+
+	assert(false);
+}
+
+const int MX_MO = 10 * 1000 + 10;
+const int MX_DR = 200 * 3 + 10;
+int dp[MX_MO][MX_DR];
+
+const int N = 10;
+string names[N];
+int drink_cost[N];
+int drink_units[N];
+
+void print_ans(int mo, int dr) {
+	map<string, int> res;
+
+	while (dp[mo][dr] > 0) {
+		int id = dp[mo][dr];
+		
+		// assert(id != -1);
+
+		string &name = names[id];
+		res[name]++;
+
+		mo -= drink_cost[id];
+		dr -= drink_units[id];
+	}
+
+	if (res.empty()) {
+		cout << "IMPOSSIBLE\n";
+		return;
+	}
+
+	for (auto [w, c] : res) {
+		cout << w << " " << c << "\n";
+	}
+}
 
 int main() {
     _upgrade;
 
-	int n, m;
-	read(n, m);
+	int money = read_fix(2);
+	int drink = read_fix(1) * 3;
+	int d;
+	cin >> d;
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
-
-	For (i, m) {
-		int q, p;
-		read(p, q);
-
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+	For (i, MX_MO) {
+		For (j, MX_DR) dp[i][j] = -1;
 	}
 
-	unordered_set<int> cant_pass;
+	dp[0][0] = 0;
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+	for (int i = 1; i <= d; i++) {
+		int pc;
+		string sz;
+		int cost;
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+		cin >> names[i] >> pc >> sz;
+		cost = read_fix(2);
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+		int units = get_units(sz) * pc / 100;
+		
+		drink_units[i] = units;
+		drink_cost[i] = cost;
+
+		For (mo, MX_MO) {
+			For (un, MX_DR) {
+				if (dp[mo][un] == -1) continue;
+				if (mo + cost >= MX_MO || un + units >= MX_DR) continue;
+
+				dp[mo + cost][un + units] = i;
+			}
+		}
+	}
+
+	if (dp[money][drink]) print_ans(money, drink);
+	else cout << "IMPOSSIBLE\n";
 }
 

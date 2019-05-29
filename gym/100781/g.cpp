@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -44,6 +47,21 @@ template <class T> ostream &operator<<(ostream &os, const vector<T> &container) 
 	for (auto &u : container) os << u << " ";
 	return os;
 }
+
+template <class T, class U> ostream &operator<<(ostream &os, const pair<T, U> &p) {
+	os << p.first << " " << p.second;
+	return os;
+}
+
+#include <ext/pb_ds/assoc_container.hpp> // Common file
+#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
+// #include <ext/pb_ds/detail/standard_policies.hpp>
+
+using namespace __gnu_pbds; 
+using namespace std; 
+
+template<typename T>
+using pb_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 #if DEBUG
 #define error(args...) { string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss); err(_it, args); }
@@ -75,43 +93,48 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 10 * 1000 + 10;
+pii G[100 * 1000 + 10];
 
-const int N = 510;
-const int INF = 1<<30;
-
-int dp[N][N];
-char A[N];
+bitset<N> taken[N];
 
 int main() {
-    _upgrade;
+	_upgrade;
 
 	int n;
-	read(n);
+	cin >> n;
 
-	For (i, n) read(A[i]);
+	For (i, n) cin >> G[i].first >> G[i].second;
 
-	For (i, n) {
-		For (p, n) {
-			if (p + i >= n)	break;
+	int m;
+	cin >> m;
 
-			if (i == 0) {
-				dp[p][p] = 1;
-			} else {
-				int res = dp[p][p + i - 1] + 1;
-				char last = A[p + i];
+	For (ix, m) {
+		int x, y, r;
+		cin >> x >> y >> r;
 
-				For (k, i) {
-					if (A[p + k] == last) {
-						int last_part = (k + 1 <= i - 1 ? dp[p + k + 1][p + i - 1] : 0);
-						res = min(res, dp[p][p + k] + last_part);
-					}
+		for (int i = 0; i * i <= r * r; i++) {
+			for (int j = 0; i * i + j * j <= r * r; j++) {
+				const int mx[] = {1, 1, -1, -1};
+				const int my[] = {1, -1, 1, -1};
+
+				For (k, 4) {
+					int nx = x + i * mx[k];
+					int ny = y + j * my[k];
+
+					if (nx < 0 || ny < 0 || nx >= N || ny >= N) continue;
+
+					taken[nx][ny] = 1;
 				}
-
-				dp[p][p + i] = res;
 			}
 		}
 	}
 
-	writeln(dp[0][n - 1]);
+	int cnt = 0;
+	For (i, n) {
+		if (taken[G[i].first][G[i].second] == 0) cnt++;
+	}
+
+	cout << cnt << "\n";
 }
 

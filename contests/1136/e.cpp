@@ -90,43 +90,105 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
+const int N = 100 * 1000 + 10;  // limit for array size
 
-bool cant_take[N];
-bool has_edge[N]; 
+int n;  // array size
+ll t[2 * N];
+
+
+class SegmentTree {
+	int sz;
+	vector<ll> tree;
+	vector<pll> lazy;
+
+	void split(int node, int x, int y) {
+		if (lazy[node].second) {
+			int z = (x + y) / 2;
+			tree[2 * node] = (z - x) * lazy[node].first;
+			tree[2 * node + 1] = (y - z) * lazy[node].first;
+			lazy[2 * node] = lazy[node];
+			lazy[2 * node + 1] = lazy[node];
+			lazy[node].second = false;
+		}
+	}
+	void merge(int node, int x, int y) {
+		tree[node] = tree[2 * node] + tree[2 * node + 1];
+	}
+
+public:
+	SegmentTree(int n) {
+		for (sz = 1; sz < n; sz <<= 1);
+		tree.resize(2 * sz/*, 0*/);
+		lazy.resize(2 * sz/*, {0, false}*/);
+	}
+
+	void update(int l, int r, ll v, int node = 1, int x = 0, int y = -1) {
+		if (y == -1) y = sz;
+		if (r <= x || l >= y) return;
+		if (l <= x && y <= r) {
+			tree[node] = (y - x) * v;
+			lazy[node] = {v, true};
+			return;
+		}
+		split(node, x, y);
+		update(l, r, v, 2 * node, x, (x + y) / 2);
+		update(l, r, v, 2 * node + 1, (x + y) / 2, y);
+		merge(node, x, y);
+	}
+
+	ll query(int l, int r, int node = 1, int x = 0, int y = -1) {
+		if (y == -1) y = sz;
+		if (r <= x || l >= y) return 0;
+		if (l <= x && y <= r) return tree[node];
+		split(node, x, y);
+		ll res = query(l, r, 2 * node, x, (x + y) / 2)
+			   + query(l, r, 2 * node + 1, (x + y) / 2, y);
+		merge(node, x, y);
+		return res;
+	}	
+};
+
+
+int A[N];
+int K[N];
 
 int main() {
     _upgrade;
 
-	int n, m;
-	read(n, m);
+	int n;
+	read(n);
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
-
-	For (i, m) {
-		int q, p;
-		read(p, q);
-
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+	For (i, n) {
+		read(t[i + n]);
+		A[i] = t[i + 1];
 	}
+	For (i, n - 1) read(K[i]);
 
-	unordered_set<int> cant_pass;
+	build();
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+	set<pii> segs; // (end, begin)
+	For (i, n) segs.insert({i, i});
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+	int q;
+	read(q);
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+	For (i, q) {
+		char c;
+		read(c);
+
+		if (c == 's') {
+			int l, r;
+
+			read(l, r);
+			writeln(query(l - 1, r));
+		} else {
+			int pos;
+			ll val;
+			read(pos, val);
+
+			auto it = segs.lower_bound({pos, 0});
+
+		}
+	}
 }
 

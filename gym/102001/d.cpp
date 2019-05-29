@@ -1,30 +1,11 @@
-#pragma region Template 
 #include <bits/stdc++.h> 
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -88,45 +69,106 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-#pragma endregion 
-
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
-
-bool cant_take[N];
-bool has_edge[N]; 
+bool taken[100042];
 
 int main() {
-    _upgrade;
+	_upgrade;
 
-	int n, m;
-	read(n, m);
+	#ifndef DEBUG
+  freopen("subway.in", "r", stdin);
+  freopen("subway.out", "w", stdout);
+  #endif
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+  int n, m;
+  cin >> n >> m;
+  int org_n = n;
+  if (n < 3 || m < n)
+  {
+    cout << "No solution\n";
+    return 0;
+  }
+  vector<int> circles;
+  while (n >= 5 && n != m)
+  {
+    n -= 2;
+    m -= 3;
+    circles.push_back(3);
+  }
+  if (n != m)
+  {
+    cout << "No solution\n";
+    return 0;
+  }
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
+  circles.push_back(n);
+  int to_add = max(0, n - 10);
+    int fre = 0;
 
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
-	}
+  if (to_add > 0)
+  {
+    circles[circles.size()-1] -= to_add;
+    for (int i=0; i<circles.size(); i++)
+    {
+      int ad = min(10 - circles[i], to_add);
+      to_add -= ad;
+      circles[i] += ad;
+    }
+    for (int x : circles)
+      fre += x;
+    fre -= (int)circles.size() - 1;
 
-	unordered_set<int> cant_pass;
+    if (fre < to_add)
+    {
+      cout << "No solution\n";
+      return 0;
+    }
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+  /*
+    if (circles.size() == 1)
+      fre = 10;
+    else
+    {
+      for (int i=0; i<circles.size(); i++)
+      {
+        fre += (i == 0 || i+1 == circles.size() ? 9 : 8);
+      }
+    }
+      if (fre < to_add)
+      {
+        cout << "No solution\n";
+        return 0;
+      }
+    */
+    
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+  }
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+  cout << circles.size() << "\n";
+  int w = 1;
+  for (int vs : circles)
+  {
+    cout << vs;
+    for (int i=0; i<vs-1; i++)
+      cout << " " << w++;
+    cout << " " << w << "\n";
+    //taken[w] = 1;
+  }
+  //taken[w] = 0;
+
+  cout << to_add << "\n";
+  if (to_add == 0)
+    return 0;
+  int fr = 1;
+  for (int i=fre+1; i<=org_n; i++)
+  {
+    
+    cout << fr << " " << i << "\n";
+    fr++;
+  }
+  return 0;
+
+  
+	
+
 }
 

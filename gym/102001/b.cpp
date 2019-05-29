@@ -1,30 +1,11 @@
-#pragma region Template 
 #include <bits/stdc++.h> 
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -88,45 +69,83 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-#pragma endregion 
+const int N = 2 * 100 * 1000 + 10;
+unordered_map<int, vector<int>> X, Y;
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
+int px[N];
+int py[N];
 
-bool cant_take[N];
-bool has_edge[N]; 
+int pos_on_x[N];
+int pos_on_y[N];
 
-int main() {
-    _upgrade;
+unordered_set<int> vis_x;
+unordered_set<int> vis_y;
 
-	int n, m;
-	read(n, m);
+bool vis[N];
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+void go(int p) {
+	if (vis[p]) return;
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
+	vis[p] = true;
 
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
-	}
+	int x = px[p];
+	int y = py[p];
 
-	unordered_set<int> cant_pass;
+	vis_x.insert(x);
+	vis_y.insert(y);
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+	int my_pos_on_x = pos_on_x[p];
+	if (my_pos_on_x > 0) go(X[x][my_pos_on_x - 1]);
+	if (my_pos_on_x + 1 < int(X[x].size())) go(X[x][my_pos_on_x + 1]);
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+	int my_pos_on_y = pos_on_y[p];
+	if (my_pos_on_y > 0) go(Y[y][my_pos_on_y - 1]);
+	if (my_pos_on_y + 1 < int(Y[y].size())) go(Y[y][my_pos_on_y + 1]);
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
 }
 
+int main() {
+	_upgrade;
+
+	#ifndef DEBUG
+  freopen("game.in", "r", stdin);
+  freopen("game.out", "w", stdout);
+  #endif
+
+	int n;
+	cin >> n;
+
+	For (i, n) {
+		int x, y;
+		cin >> x >> y;
+
+		X[x].push_back(i);
+		pos_on_x[i] = int(X[x].size()) - 1;
+		Y[y].push_back(i);
+		pos_on_y[i] = int(Y[y].size()) - 1;
+
+		px[i] = x;
+		py[i] = y;
+	}
+
+	ll total = 0;
+
+	For (i, n) {
+		if (vis[i]) continue;
+		
+		int x = px[i];
+		int y = py[i];
+
+		if (int(X[x].size()) < 2 || int(Y[y].size()) < 2) continue;
+
+		vis_x.clear();		
+		vis_y.clear();		
+
+		go(i);
+		total += ll(vis_x.size()) * ll(vis_y.size());
+	}
+
+	For (i, n) if (!vis[i]) total++;
+
+	cout << total << "\n";
+}

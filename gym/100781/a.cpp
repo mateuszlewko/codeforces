@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -44,6 +47,21 @@ template <class T> ostream &operator<<(ostream &os, const vector<T> &container) 
 	for (auto &u : container) os << u << " ";
 	return os;
 }
+
+template <class T, class U> ostream &operator<<(ostream &os, const pair<T, U> &p) {
+	os << p.first << " " << p.second;
+	return os;
+}
+
+#include <ext/pb_ds/assoc_container.hpp> // Common file
+#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
+// #include <ext/pb_ds/detail/standard_policies.hpp>
+
+using namespace __gnu_pbds; 
+using namespace std; 
+
+template<typename T>
+using pb_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 #if DEBUG
 #define error(args...) { string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss); err(_it, args); }
@@ -75,43 +93,84 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+const int N = 100 * 1000 + 10;
+bool vis[N];
 
-const int N = 510;
-const int INF = 1<<30;
+vector<int> G[N];
 
-int dp[N][N];
-char A[N];
+pair<int, int> go(int x, int parent, bool set_vis = false) {
+	if (set_vis) vis[x] = true;
+
+	int best_d = 0;
+	int best = x;
+
+	for (int y : G[x]) {
+		if (vis[y] || y == parent) continue;
+
+		auto p = go(y, x, set_vis);
+		int child_d = p.first + 1;
+		int child = p.second;
+
+		if (child_d> best_d) {
+			best_d = child_d;
+			best = child;
+		}
+	}
+
+	return {best_d, best};
+}
+
+int diam(int x) {
+	auto p = go(x, -1);
+	// error(x, p);
+	return go(p.second, -1, true).first;
+}
 
 int main() {
     _upgrade;
 
-	int n;
-	read(n);
+		int n, m;
+		cin >> n >> m;
 
-	For (i, n) read(A[i]);
+		For (i, m) {
+			int x, y;
+			cin >> x >> y;
 
-	For (i, n) {
-		For (p, n) {
-			if (p + i >= n)	break;
-
-			if (i == 0) {
-				dp[p][p] = 1;
-			} else {
-				int res = dp[p][p + i - 1] + 1;
-				char last = A[p + i];
-
-				For (k, i) {
-					if (A[p + k] == last) {
-						int last_part = (k + 1 <= i - 1 ? dp[p + k + 1][p + i - 1] : 0);
-						res = min(res, dp[p][p + k] + last_part);
-					}
-				}
-
-				dp[p][p + i] = res;
-			}
+			G[x].push_back(y);
+			G[y].push_back(x);
 		}
-	}
 
-	writeln(dp[0][n - 1]);
+		vector<int> ds;
+		For (i, n) {
+			if (vis[i]) continue;
+			ds.push_back(diam(i));
+		}
+
+		SORT(ds);
+
+		// error(ds);
+
+		assert(ds.size() > 0);
+
+		if (ds.size() == 1) {
+			cout << ds[0] << "\n";
+			return 0;
+		} 
+		
+		int dn = ds[ds.size() - 1];
+
+		if (ds.size() == 2) {
+			cout << max(dn, ((ds[0] + 1) / 2) + 1 + ((ds[1] + 1) / 2)) << "\n";
+			return 0;
+		}
+
+		int dn1 = ds[ds.size() - 2];
+		int dn2 = ds[ds.size() - 3];
+
+		int res1 = (dn2 + 1) / 2 + 2 + (dn1 + 1) / 2;
+		int res2 = (dn1 + 1) / 2 + 1 + (dn + 1) / 2;
+		
+		cout << max(res1, max(res2, dn)) << "\n";
 }
+
 

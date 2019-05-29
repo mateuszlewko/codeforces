@@ -3,28 +3,10 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -90,43 +72,111 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
+const int N = 1000010;
+int divider[N];
+vector<int> divs[N];
 
-bool cant_take[N];
-bool has_edge[N]; 
+void sieve() {
+	for (int i = 2; i * i < N; i++) {
+		if (divider[i] != 0) continue;
 
-int main() {
-    _upgrade;
+		for (int j = i * i; j < N; j += i) {
+			divider[j] = i;
+		}
+	}
+}
 
-	int n, m;
-	read(n, m);
+void populate_divs(int x) {
+	int c = x;
+	int prev_div = -1;
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+	while (true) {
+		int d = divider[c];
+		if (d != prev_div) {
+			divs[d == 0 ? c : d].push_back(x);
+		}
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
+		prev_div = d;
+		if (d == 0) return;
+		c /= d;
+	}
+}
 
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+int ans[N];
+bool used[N];
+
+int find_best(int last) {
+	int c = last;
+
+	int best = N - 1;
+
+	while (true) {
+		int d = divider[c];
+		int dd = d == 0 ? c : d;
+
+		while (divs[dd].size() && used[divs[dd].back()]) divs[dd].pop_back();
+		if (divs[dd].size()) best = min(best, divs[dd].back());
+
+		if (d == 0) break;
+		c /= d;
 	}
 
-	unordered_set<int> cant_pass;
+	return best;
+}
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+void gen_seq() {
+	// For (i, 40) cout << divider[i] << " " ;
+	// cout << endl;
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+	for (int i = N - 1; i >= 3; i--) {
+		populate_divs(i);
+	}
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+	// cout << "-------" << endl;
+
+	// For (i, 10) {
+	// 	For (j, min(10, (int)divs[i].size())) {
+	// 		cout << divs[i][(int)divs[i].size() - j - 1] << " ";
+	// 	}
+	// 	cout << endl;
+	// }
+	// cout << "-------" << endl;
+
+	vector<int> seq;
+	seq.push_back(1);
+	seq.push_back(2);
+
+	used[1] = true;
+	used[2] = true;
+
+	For (i, N - 5) {
+		int b = find_best(seq.back());
+		used[b] = true;
+		seq.push_back(b);
+	}
+
+	For (i, seq.size()) {
+		ans[seq[i]] = i + 1;
+	}
+
+	// For (i, 50) {
+	// 	cout << seq[i] << " ";
+	// }
+	// cout << endl;
+}
+
+int main() {
+	_upgrade;
+
+	sieve();
+	gen_seq();
+
+	while (true) {
+		int n;
+		cin >> n;
+		if (n == 0) return 0;
+
+		cout << "The number " << n << " appears in location " << ans[n] << ".\n";
+	}
 }
 

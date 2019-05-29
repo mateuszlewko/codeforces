@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -90,43 +93,82 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
+vector<int> prefix_function(const vector<int> &s) {
+	int n = (int) s.size();
+	vector<int> pi(n);
 
-bool cant_take[N];
-bool has_edge[N]; 
+	for (int i=1; i<n; ++i) {
+		int j = pi[i-1];
+		while (j > 0 && s[i] != s[j])
+			j = pi[j-1];
+		if (s[i] == s[j])  ++j;
+		pi[i] = j;
+	}
+	return pi;
+}
+
+const int N = 2 * 100 * 1000 + 10;
+int P[N];
+int A[N];
 
 int main() {
     _upgrade;
 
-	int n, m;
-	read(n, m);
+	int n, m, q;
+	cin >> n >> m >> q;
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+	For (i, n) cin >> P[i];
+	For (i, m) cin >> A[i];
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
+	vector<int> norm; 
+	For (i, n) norm.push_back(P[i]);
+	norm.push_back(-1);
+	For (i, m) norm.push_back(A[i]);
 
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+	auto p1 = prefix_function(norm);
+	cout << "p1: " << p1 << endl;
+
+	vector<int> rev;
+	ForD (i, n) rev.push_back(P[i]);
+	rev.push_back(-1);
+	ForD (i, m) rev.push_back(A[i]);
+
+	auto p2 = prefix_function(rev);
+	cout << "p2: " << p2 << endl;
+
+	int offset = n + 1;
+	vector<int> correct_pos;
+
+	int k = norm.size();
+	For (i, k) {
+		int p1_val = p1[i];
+		int p2_val = p2[i - p1_val];
+
+		if (p1_val + p2_val == n) {
+			correct_pos.push_back(i - offset + 1);
+		} 
 	}
 
-	unordered_set<int> cant_pass;
+	cout << "res: " << correct_pos << endl;
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+	For (i, q) {
+		int l, r;
+		cin >> l >> r;
+		if (correct_pos.empty()) {
+			cout << "0";
+			continue;
+		}
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+		int pos = upper_bound(correct_pos.begin(), correct_pos.end(), r) - correct_pos.begin();
+		if (pos == 0) {
+			cout << "0";
+			continue;
+		}
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+		pos--;
+		if (correct_pos[pos] - n >= l) {
+			cout << "1";
+		} else cout << "0";
+	}
 }
 

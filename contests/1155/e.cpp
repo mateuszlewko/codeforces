@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -44,6 +47,21 @@ template <class T> ostream &operator<<(ostream &os, const vector<T> &container) 
 	for (auto &u : container) os << u << " ";
 	return os;
 }
+
+template <class T, class U> ostream &operator<<(ostream &os, const pair<T, U> &p) {
+	os << p.first << " " << p.second;
+	return os;
+}
+
+#include <ext/pb_ds/assoc_container.hpp> // Common file
+#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
+// #include <ext/pb_ds/detail/standard_policies.hpp>
+
+using namespace __gnu_pbds; 
+using namespace std; 
+
+template<typename T>
+using pb_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 #if DEBUG
 #define error(args...) { string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss); err(_it, args); }
@@ -75,43 +93,76 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
+std::default_random_engine generator;
+const int N = 1000 * 1000 + 3;
+std::uniform_int_distribution<int> distribution(0, N - 1);
 
-const int N = 510;
-const int INF = 1<<30;
+int rnd() {
+	return distribution(generator);
+}
 
-int dp[N][N];
-char A[N];
+int ask_cnt = 50;
 
-int main() {
-    _upgrade;
+void print_res(int x) {
+	cout << "! " << x << endl;
+	exit(0);
+}
 
-	int n;
-	read(n);
+int ask(int x) {
+	if (ask_cnt < 0) {
+		cout << "! -1" << endl;
+		exit(0);
+	}
 
-	For (i, n) read(A[i]);
+	ask_cnt--;
+	cout << "? " << x << endl;
+	
+	int ans;
+	cin >> ans;
 
-	For (i, n) {
-		For (p, n) {
-			if (p + i >= n)	break;
+	if (ans == 0) {
+		print_res(x);
+	}
 
-			if (i == 0) {
-				dp[p][p] = 1;
-			} else {
-				int res = dp[p][p + i - 1] + 1;
-				char last = A[p + i];
+	return ans;
+}
 
-				For (k, i) {
-					if (A[p + k] == last) {
-						int last_part = (k + 1 <= i - 1 ? dp[p + k + 1][p + i - 1] : 0);
-						res = min(res, dp[p][p + k] + last_part);
-					}
-				}
+void try_find(int lx, int l, int rx, int r) {
+	int beg = l;
+	int end = r;
 
-				dp[p][p + i] = res;
-			}
+	while (beg != end - 1) {
+		int mid = (beg + end) / 2;
+		if (ask(mid) > l) {
+			beg = mid;
+		} else {
+			end = mid;
 		}
 	}
 
-	writeln(dp[0][n - 1]);
+	ask(beg + 1);
+}
+
+int main() {
+    // _upgrade;
+
+	vector<int> qs;
+	For (i, 18) qs.push_back(rnd());
+
+	qs.push_back(0);
+	SORT(qs);
+
+	vector<pii> as;
+	for (int x : qs) {
+		as.emplace_back(x, ask(x));
+	}
+
+	For (i, int(as.size()) - 1) {
+		if (as[i].second > as[i + 1].second) {
+			try_find(as[i].first, as[i].second, as[i + 1].first, as[i + 1].second);
+		}
+	}
+
+	while (ask_cnt > -2) ask(rnd());
 }
 

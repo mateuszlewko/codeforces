@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -44,6 +47,21 @@ template <class T> ostream &operator<<(ostream &os, const vector<T> &container) 
 	for (auto &u : container) os << u << " ";
 	return os;
 }
+
+template <class T, class U> ostream &operator<<(ostream &os, const pair<T, U> &p) {
+	os << p.first << " " << p.second;
+	return os;
+}
+
+#include <ext/pb_ds/assoc_container.hpp> // Common file
+#include <ext/pb_ds/tree_policy.hpp> // Including tree_order_statistics_node_update
+// #include <ext/pb_ds/detail/standard_policies.hpp>
+
+using namespace __gnu_pbds; 
+using namespace std; 
+
+template<typename T>
+using pb_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_node_update>;
 
 #if DEBUG
 #define error(args...) { string _s = #args; replace(_s.begin(), _s.end(), ',', ' '); stringstream _ss(_s); istream_iterator<string> _it(_ss); err(_it, args); }
@@ -76,42 +94,91 @@ typedef pair<ll, ll> pll;
 #pragma endregion 
 
 
-const int N = 510;
-const int INF = 1<<30;
+const int N = 5010;
+vector<int> G[N * 2];
 
-int dp[N][N];
-char A[N];
+int mex[N * 2 + 2];
+int vis[N * 2 + 2];
+
+bool BiMatch(int u, int cnt)
+{
+    for (int v : G[u])
+        if (vis[v] < cnt)
+        {
+            vis[v] = cnt;
+            if (mex[v] == -1 or BiMatch(mex[v], cnt))
+            {
+                mex[v] = u;
+                return true;
+            }
+        }
+
+    return false;
+}
+
+int potential[N];
+int club[N];
+
+int ans[N];
 
 int main() {
     _upgrade;
 
-	int n;
-	read(n);
+    memset(mex, -1, sizeof(mex));
+	int n, m;
 
-	For (i, n) read(A[i]);
+	cin >> n >> m;
+	For (i, n) cin >> potential[i + 1];
 
 	For (i, n) {
-		For (p, n) {
-			if (p + i >= n)	break;
+		int c;
+		cin >> c;
+		club[i + 1] = c;
+	}
 
-			if (i == 0) {
-				dp[p][p] = 1;
-			} else {
-				int res = dp[p][p + i - 1] + 1;
-				char last = A[p + i];
+	vector<int> removed;
+	unordered_set<int> left;
 
-				For (k, i) {
-					if (A[p + k] == last) {
-						int last_part = (k + 1 <= i - 1 ? dp[p + k + 1][p + i - 1] : 0);
-						res = min(res, dp[p][p + k] + last_part);
-					}
-				}
+	For (i, n) left.insert(i + 1);
 
-				dp[p][p + i] = res;
-			}
+	int d;
+	cin >> d;
+
+	For (i, d) {
+		int x;
+		cin >> x;
+		left.erase(x);
+		removed.push_back(x);
+	}
+
+	int run_cnt = 0;
+	int best_col = 0;
+
+	for (int x : left) {
+		int c = club[x];
+		int to = potential[x];
+
+		G[c + N].push_back(to);
+		G[to].push_back(c + N);
+
+		while (BiMatch(best_col, ++run_cnt)) best_col++;
+	}
+
+	ForD (i, d) {
+		ans[i] = best_col;
+
+		int x = removed[i];
+		int c = club[x];
+		int to = potential[x];
+
+		G[c + N].push_back(to);
+		G[to].push_back(c + N);
+
+		while (BiMatch(best_col, ++run_cnt)) {
+			best_col++;
 		}
 	}
 
-	writeln(dp[0][n - 1]);
+	For (i, d) writeln(ans[i]);
 }
 

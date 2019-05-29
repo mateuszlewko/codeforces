@@ -1,30 +1,11 @@
-#pragma region Template 
 #include <bits/stdc++.h> 
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -88,45 +69,87 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-#pragma endregion 
+const int N = 110;
 
-const int N = 3 * 100 * 1000 + 10;
 int A[N];
-vector<int> go[N];
+int n, c, p;
+ll t;
 
-bool cant_take[N];
-bool has_edge[N]; 
+int B[N];
 
-int main() {
-    _upgrade;
+int sum_all = 0;
 
-	int n, m;
-	read(n, m);
+bool check(int k) {
+	if (k > sum_all) return false;
+	
+	int left = k;
+	ll total_t = 0;
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+	int todo = 0;
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
-
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+	For (i, n) {
+		B[i] = min(left, A[i]);
+		left -= B[i];
+		
+		int w = B[i] / c;
+		total_t += w * 2LL * (i + 1) * p;
+		
+		B[i] -= c * w;
+		todo += B[i];
 	}
 
-	unordered_set<int> cant_pass;
+	int ind = n - 1;
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+	while (todo > 0) {
+		int curr = 0;
+		int mx_lvl = 0;
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+		while (ind >= 0 && curr < c) {
+			int take = min(B[ind], c - curr);
+			if (take > 0) mx_lvl = max(ind, mx_lvl);
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+			curr += take;
+			B[ind] -= take;
+
+			if (B[ind] == 0) {
+				if (ind == 0) break;
+				else ind--;
+			}
+		}
+
+		todo -= curr;
+		if (curr > 0) total_t += 2LL * (mx_lvl + 1) * p;
+	}
+
+	return total_t <= t;
+}
+
+int main() {
+	_upgrade;
+
+	#ifndef DEBUG
+  freopen("elevator.in", "r", stdin);
+  freopen("elevator.out", "w", stdout);
+  #endif
+	
+	cin >> n >> c >> p >> t;
+
+	int end = 1;
+	For (i, n) {
+		cin >> A[i];
+		sum_all += A[i];
+		end += A[i];
+	}
+
+	int beg = 0;
+
+	while (beg != end - 1) {
+		int mid = (beg + end) / 2;
+		
+		if (check(mid)) beg = mid;
+		else end = mid;
+	}
+
+	cout << beg << "\n";
 }
 

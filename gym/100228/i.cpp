@@ -1,30 +1,11 @@
-#pragma region Template 
 #include <bits/stdc++.h> 
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
-template<typename... Args>
-void read(Args&... args)
-{
-    ((cin >> args), ...);
-}
-
-template<typename... Args>
-void write(Args... args)
-{
-    ((cout << args << " "), ...);
-}
-
-template<typename... Args>
-void writeln(Args... args)
-{
-    ((cout << args << " "), ...);
-	cout << "\n";
-}
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -88,45 +69,78 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-#pragma endregion 
+const int N = 110;
+bool con[N][N];
+int perm[N];
+int pos_of[N];
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
-
-bool cant_take[N];
-bool has_edge[N]; 
+ll dp[N];
 
 int main() {
-    _upgrade;
+	_upgrade;
 
 	int n, m;
-	read(n, m);
-
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+	cin >> n >> m;
 
 	For (i, m) {
-		int q, p;
-		read(p, q);
-
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+		int a, b;
+		cin >> a >> b;
+		con[b][a] = con[a][b] = 1;
 	}
 
-	unordered_set<int> cant_pass;
-
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
+	For (i, n) {
 		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+		For (j, n) {
+			if (j < i && !con[i][j]) cnt++;
+			if (j > i && con[i][j]) cnt++;
+		}
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+		perm[i] = cnt;
+		pos_of[cnt] = i;
+		// cout << cnt << " ";
+	}
+	// cout << endl;
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+	dp[perm[0]] = 1;
+	for (int i = 1; i < n; i++) {
+		int p = perm[i];
+
+		for (int from = 0; from < p; from++) {
+			if (pos_of[from] > i) continue;
+
+			bool any_between = false;
+			for (int j = pos_of[from] + 1; j < i; j++) {
+				if (perm[j] < p && perm[j] > from) {
+					any_between = true;
+					break;
+				}
+			}
+
+			if (any_between) continue;
+			dp[p] += dp[from];
+		}
+
+		dp[p] = max(1LL, dp[p]);
+	}
+
+	ll sum = 0;
+
+	For (i, n) {
+		int p = perm[i];
+		bool any_larger = false;
+		for (int j = i + 1; j < n; j++) {
+			if (perm[j] > p) {
+				any_larger = true;
+				break;
+			}
+		}
+
+		if (!any_larger) {
+			// error(p, dp[p]);
+			sum += dp[p];
+		}
+	}
+
+	cout << sum << "\n";
 }
 

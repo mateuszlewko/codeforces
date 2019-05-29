@@ -3,10 +3,12 @@
 
 using namespace std;
 
-#define For(i, n) for (int i = 0; i < (n); i++)
-#define ForD(i, n) for (int i = (n) - 1; i >= 0; i--)
+#define For(i, n) for (int i = 0; i < int(n); i++)
+#define ForD(i, n) for (int i = int(n) - 1; i >= 0; i--)
 #define SORT(x) sort(begin(x), end(x))
 #define REP(i, begin, end) for (__typeof(end) i = (begin) - ((begin) > (end)); i != (end) - ((begin) > (end)); i += 1 - 2 * ((begin) > (end)))
+
+#ifndef JUST_CPP11
 template<typename... Args>
 void read(Args&... args)
 {
@@ -25,6 +27,7 @@ void writeln(Args... args)
     ((cout << args << " "), ...);
 	cout << "\n";
 }
+#endif
 
 template<typename T, typename U>
 pair<T, U>& operator+=(pair<T, U> &lhs, const pair<T, U> &rhs){
@@ -90,43 +93,91 @@ typedef pair<ll, ll> pll;
 
 #pragma endregion 
 
-const int N = 3 * 100 * 1000 + 10;
-int A[N];
-vector<int> go[N];
+pii swapp(pii p) {
+	return {p.second, p.first};
+}
 
-bool cant_take[N];
-bool has_edge[N]; 
+int ask(pii top_left, pii bottom_right) {
+	cout << "? " << swapp(top_left) << " " << swapp(bottom_right) << endl;
+	int x;
+	cin >> x;
+	return x;
+}
 
-int main() {
-    _upgrade;
+void print_ans(pii a, pii b) {
+	cout << "! " << swapp(a) << " " << swapp(b) << endl;
+	exit(0);
+}
 
-	int n, m;
-	read(n, m);
+const int N = 1010;
+int rows_ans[N];
+int col_ans[N];
 
-	For (i, n) read(A[i + 1]);
-	int last = A[n];
+bool check(int kind, int x, int mid) {
+	if (mid == 0) return false;
 
-	For (i, m) {
-		int q, p;
-		read(p, q);
+	if (kind == 0) {
+		int col = x;
+		return ask({col, 1}, {col, mid}) % 2 == 1;
+	} else {
+		int row = x;
+		return ask({1, row}, {mid, row}) % 2 == 1;
+	}
+}
 
-		if (q == last) {
-			has_edge[p] = true;
-		} else go[p].push_back(q);
+int find(int x, int n, int kind) {
+	int beg = 0;
+	int end = n;
+
+	while (beg != end - 1) {
+		int mid = (beg + end) / 2;
+		if (check(kind, x, mid)) {
+			end = mid;
+		} else {
+			beg = mid; 
+		}
 	}
 
-	unordered_set<int> cant_pass;
+	return end;
+}
 
-	for (int pos = n - 1; pos >= 1; pos--) {
-		int p = A[pos];
-		int cnt = 0;
-		for (int q : go[p]) cnt += cant_pass.count(q);
+int main() {
+	int n;
+	cin >> n;
 
-		// error(p, cnt);
-		if (cnt < int(cant_pass.size()) || !has_edge[p]) cant_pass.insert(p);
-	}	
+	vector<int> rows_possible;
+	vector<int> col_possible;
 
-	// error(cant_pass.size());
-	writeln(n - (int)cant_pass.size() - 1);
+	for (int i = 1; i <= n; i++) {
+		rows_ans[i] = ask({1, i}, {n, i});
+		if (rows_ans[i] % 2 != 0) rows_possible.push_back(i);
+	}
+
+	for (int i = 1; i <= n; i++) {
+		col_ans[i] = ask({i, 1}, {i, n});
+		if (col_ans[i] % 2 != 0) col_possible.push_back(i);
+	}
+	
+	if (rows_possible.empty()) {
+		int r = find(col_possible[0], n, 0);
+		rows_possible.push_back(r);
+	} else if (col_possible.empty()) {
+		int c = find(rows_possible[0], n, 1);
+		col_possible.push_back(c);
+	}
+
+	vector<pii> ans;
+	for (int r : rows_possible) {
+		for (int c : col_possible) {
+			if (ask({c, r}, {c, r}) == 1) {
+				ans.push_back({c, r});
+			}
+
+			if (ans.size() == 2) {
+				print_ans(ans[0], ans[1]);
+				return 0;
+			}
+		}
+	}
 }
 
