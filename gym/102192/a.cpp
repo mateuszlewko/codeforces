@@ -69,94 +69,67 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-const int N = 300;
-bitset<N> A[N];
-map<pair<pii, pii>, int>  M;
+const ll MOD = 998244353LL;
 
-int get_col(int x, int y, int len) {
-	int col = 2;
-	for (int i = x; i < x + len; i++) {
-		for (int j = y; j < y + len; j++) {
-			if (col == 2) col = A[i][j];
-			else if (col != A[i][j]) return 2;
-		}
-	}
+const int N = 2 * 100 * 1000 + 10;
+ll factor[N];
+ll inv_factor[N];
 
-	return col;
-}
-
-int leaf_cnt = 0;
-int vertex_cnt = 0;
-
-pair<int, bool> get_num(int x, int y, int len) {
-	int col = get_col(x, y, len);
-	vertex_cnt++;
-	if (col != 2) {
-		// leaf_cnt++;
-		return {col - 3, 1};
-	}
-
-	// error(x, y, len, col);
-	len /= 2;
-
-	auto a2 = get_num(x, y, len);
-	int a = a2.first; 
-	int a3 = a2.second; 
-	auto b2 = get_num(x, y + len, len);
-	int b = b2.first; 
-	int b3 = b2.second; 
-	auto c2 = get_num(x + len, y, len);
-	int c = c2.first; 
-	int c3 = c2.second; 
-	auto d2 = get_num(x + len, y + len, len);
-	int d = d2.first; 
-	int d3 = d2.second; 
-
-	pair<pii, pii> hs = {{a, b}, {c, d}};
-
-	if (M.count(hs) == 0) {
-		int id = int(M.size());
-		leaf_cnt += a3 + b3 + c3 + d3;
-		return {M[hs] = id, 0};
-	} else return {M[hs], 0};
-}
-
-void solve(int n, int m) {
-	M.clear();
-	leaf_cnt = 0;
-	vertex_cnt = 0;
-
-	int k = max(n, m);
-	while (__builtin_popcount(k) != 1) k++;
+ll fast_pow(ll x, ll n) {
+	if (n == 0) return 1LL;
+	ll r = fast_pow(x, n / 2LL);
+	r = (r * r) % MOD;
 	
-	For (i, k + 2) A[i].reset();
+	if (n % 2 == 1) r = (r * x) % MOD;
+	return r;
+}
 
-	For (i, n) {
-		For (j, m) {
-			char c;
-			cin >> c;
-			A[i][j] = c == '1';
-		}
+void init_factors() {
+	ll f = 1;
+
+	factor[0] = 1;
+	inv_factor[0] = 1;
+
+	for (ll i = 1; i < N; i++) {
+		f = (f * (ll)i) % MOD;
+		factor[i] = f;
+		inv_factor[i] = fast_pow(f, MOD - 2);
+	}
+}
+
+ll binomial(ll n, ll k) {
+	if (n < 0) return 0LL;
+	if (k > n) return 0LL;
+	if (n >= N || k >= N) return 0LL;
+
+	ll r = (factor[n] * inv_factor[k]) % MOD;
+	return (r * inv_factor[n - k]) % MOD;
+}
+
+void solve() {
+	ll n, m, k;
+	cin >> n >> m >> k;
+
+	ll sum = 0;
+	for (ll i = 0; i <= m; i++) {
+		ll r = binomial(k + m - 1 - i * n, m - 1) * binomial(m, i);
+		r %= MOD;
+		
+		if (i % 2 == 0) sum = (sum + r) % MOD;
+		else sum = (sum - r + MOD) % MOD;
 	}
 
-	int num = get_num(0, 0, k).first;
-	// error(num, leaf_cnt);
-	int ans2 = num + leaf_cnt + 1;
-
-	if (get_col(0, 0, k) != 2) ans2 = 1;
-
-	cout << vertex_cnt << " " << ans2 << "\n";
+	cout << sum << "\n";
 }
 
 int main() {
 	_upgrade;
 
-	while (true) {
-		int n, m;
-		cin >> n >> m;
+	init_factors();
 
-		if (n == 0 && m == 0) return 0;
-		solve(n, m);
-	}
+	int t;
+	cin >> t;
+
+	while (t--) solve();
 }
 

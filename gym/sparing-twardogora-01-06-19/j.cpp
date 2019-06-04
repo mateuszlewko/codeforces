@@ -69,94 +69,48 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-const int N = 300;
-bitset<N> A[N];
-map<pair<pii, pii>, int>  M;
+const int N = 110;
+int A[N];
+int n;
 
-int get_col(int x, int y, int len) {
-	int col = 2;
-	for (int i = x; i < x + len; i++) {
-		for (int j = y; j < y + len; j++) {
-			if (col == 2) col = A[i][j];
-			else if (col != A[i][j]) return 2;
+bool check(int x, int y) {
+	int waiting;
+	vector<int> playing;
+
+	playing.push_back(x);
+	playing.push_back(y);
+
+	for (int i = 1; i <= 3; i++) {
+		if (i != x && i != y) {
+			waiting = i;
+			break;
 		}
 	}
-
-	return col;
-}
-
-int leaf_cnt = 0;
-int vertex_cnt = 0;
-
-pair<int, bool> get_num(int x, int y, int len) {
-	int col = get_col(x, y, len);
-	vertex_cnt++;
-	if (col != 2) {
-		// leaf_cnt++;
-		return {col - 3, 1};
-	}
-
-	// error(x, y, len, col);
-	len /= 2;
-
-	auto a2 = get_num(x, y, len);
-	int a = a2.first; 
-	int a3 = a2.second; 
-	auto b2 = get_num(x, y + len, len);
-	int b = b2.first; 
-	int b3 = b2.second; 
-	auto c2 = get_num(x + len, y, len);
-	int c = c2.first; 
-	int c3 = c2.second; 
-	auto d2 = get_num(x + len, y + len, len);
-	int d = d2.first; 
-	int d3 = d2.second; 
-
-	pair<pii, pii> hs = {{a, b}, {c, d}};
-
-	if (M.count(hs) == 0) {
-		int id = int(M.size());
-		leaf_cnt += a3 + b3 + c3 + d3;
-		return {M[hs] = id, 0};
-	} else return {M[hs], 0};
-}
-
-void solve(int n, int m) {
-	M.clear();
-	leaf_cnt = 0;
-	vertex_cnt = 0;
-
-	int k = max(n, m);
-	while (__builtin_popcount(k) != 1) k++;
-	
-	For (i, k + 2) A[i].reset();
 
 	For (i, n) {
-		For (j, m) {
-			char c;
-			cin >> c;
-			A[i][j] = c == '1';
-		}
+		int win = A[i];
+		if ((int)playing.size() < 2) return false;
+		if (playing[0] != win && playing[1] != win) return false;
+
+		if (playing[0] != win) swap(playing[0], waiting);
+		else swap(playing[1], waiting);
+		
+		if (waiting == playing[0] || waiting == playing[1]) return false;
+		if (playing[0] == playing[1]) return false;
 	}
 
-	int num = get_num(0, 0, k).first;
-	// error(num, leaf_cnt);
-	int ans2 = num + leaf_cnt + 1;
-
-	if (get_col(0, 0, k) != 2) ans2 = 1;
-
-	cout << vertex_cnt << " " << ans2 << "\n";
+	return true;
 }
 
 int main() {
 	_upgrade;
 
-	while (true) {
-		int n, m;
-		cin >> n >> m;
+	cin >> n;
+	For (i, n) cin >> A[i];
 
-		if (n == 0 && m == 0) return 0;
-		solve(n, m);
+	if (check(1, 2)) {
+		cout << "YES\n";
 	}
+	else cout << "NO\n";
 }
 

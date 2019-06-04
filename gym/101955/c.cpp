@@ -46,7 +46,7 @@ using pb_set = tree<T, null_type, less<T>, rb_tree_tag, tree_order_statistics_no
 void err(istream_iterator<string>) {}
 template<typename T, typename... Args>
 void err(istream_iterator<string> it, T a, Args... args) {
-	cerr << *it << " = " << a << endl;
+	//cerr << *it << " = " << a << endl;
 	err(++it, args...);
 }
 #else
@@ -69,94 +69,25 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-const int N = 300;
-bitset<N> A[N];
-map<pair<pii, pii>, int>  M;
+void solve(int tc) {
+	ll n, k, q;
+	cin >> n >> k >> q;
 
-int get_col(int x, int y, int len) {
-	int col = 2;
-	for (int i = x; i < x + len; i++) {
-		for (int j = y; j < y + len; j++) {
-			if (col == 2) col = A[i][j];
-			else if (col != A[i][j]) return 2;
-		}
-	}
+	k = min(k, n);
 
-	return col;
-}
+	ll k_fact = 1;
+	for (ll i = 1; i <= k; i++) k_fact = (k_fact * i) % q;
 
-int leaf_cnt = 0;
-int vertex_cnt = 0;
-
-pair<int, bool> get_num(int x, int y, int len) {
-	int col = get_col(x, y, len);
-	vertex_cnt++;
-	if (col != 2) {
-		// leaf_cnt++;
-		return {col - 3, 1};
-	}
-
-	// error(x, y, len, col);
-	len /= 2;
-
-	auto a2 = get_num(x, y, len);
-	int a = a2.first; 
-	int a3 = a2.second; 
-	auto b2 = get_num(x, y + len, len);
-	int b = b2.first; 
-	int b3 = b2.second; 
-	auto c2 = get_num(x + len, y, len);
-	int c = c2.first; 
-	int c3 = c2.second; 
-	auto d2 = get_num(x + len, y + len, len);
-	int d = d2.first; 
-	int d3 = d2.second; 
-
-	pair<pii, pii> hs = {{a, b}, {c, d}};
-
-	if (M.count(hs) == 0) {
-		int id = int(M.size());
-		leaf_cnt += a3 + b3 + c3 + d3;
-		return {M[hs] = id, 0};
-	} else return {M[hs], 0};
-}
-
-void solve(int n, int m) {
-	M.clear();
-	leaf_cnt = 0;
-	vertex_cnt = 0;
-
-	int k = max(n, m);
-	while (__builtin_popcount(k) != 1) k++;
-	
-	For (i, k + 2) A[i].reset();
-
-	For (i, n) {
-		For (j, m) {
-			char c;
-			cin >> c;
-			A[i][j] = c == '1';
-		}
-	}
-
-	int num = get_num(0, 0, k).first;
-	// error(num, leaf_cnt);
-	int ans2 = num + leaf_cnt + 1;
-
-	if (get_col(0, 0, k) != 2) ans2 = 1;
-
-	cout << vertex_cnt << " " << ans2 << "\n";
+	ll res = (k_fact + (n - k) * (n - 1LL) * k_fact) % q;
+	cout << "Case #" << tc << ": " << res << "\n";
 }
 
 int main() {
 	_upgrade;
 
-	while (true) {
-		int n, m;
-		cin >> n >> m;
+	int t;
+	cin >> t;
 
-		if (n == 0 && m == 0) return 0;
-		solve(n, m);
-	}
+	For (i, t) solve(i + 1);
 }
 

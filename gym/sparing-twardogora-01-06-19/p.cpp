@@ -69,94 +69,75 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-const int N = 300;
-bitset<N> A[N];
-map<pair<pii, pii>, int>  M;
-
-int get_col(int x, int y, int len) {
-	int col = 2;
-	for (int i = x; i < x + len; i++) {
-		for (int j = y; j < y + len; j++) {
-			if (col == 2) col = A[i][j];
-			else if (col != A[i][j]) return 2;
-		}
-	}
-
-	return col;
+const int mod=1000000007;
+int tab[100005],T[100005];
+ll P[100005];
+void sito(int n)
+{
+    for(int i=2;i*i<=n;i++)
+      if(!tab[i])
+        for(int j=i*i;j<=n;j+=i)
+          tab[j]=1;
 }
-
-int leaf_cnt = 0;
-int vertex_cnt = 0;
-
-pair<int, bool> get_num(int x, int y, int len) {
-	int col = get_col(x, y, len);
-	vertex_cnt++;
-	if (col != 2) {
-		// leaf_cnt++;
-		return {col - 3, 1};
-	}
-
-	// error(x, y, len, col);
-	len /= 2;
-
-	auto a2 = get_num(x, y, len);
-	int a = a2.first; 
-	int a3 = a2.second; 
-	auto b2 = get_num(x, y + len, len);
-	int b = b2.first; 
-	int b3 = b2.second; 
-	auto c2 = get_num(x + len, y, len);
-	int c = c2.first; 
-	int c3 = c2.second; 
-	auto d2 = get_num(x + len, y + len, len);
-	int d = d2.first; 
-	int d3 = d2.second; 
-
-	pair<pii, pii> hs = {{a, b}, {c, d}};
-
-	if (M.count(hs) == 0) {
-		int id = int(M.size());
-		leaf_cnt += a3 + b3 + c3 + d3;
-		return {M[hs] = id, 0};
-	} else return {M[hs], 0};
+int M=0;
+vector<int> L;
+ll wynik=0;
+void funkcja(int ile,ll x,int w)
+{
+  if(x>M)
+    return;
+  if(ile==L.size())
+    {
+      if(x==1)
+        return;
+      int pom=0;
+      for(int j=x;j<=M;j+=x)
+      {
+          pom+=T[j];
+      }
+      int y=P[pom];
+    //  printf("%lld %d %ḍ\n",x,pom,y);
+      y--;
+      y+=mod;
+      y%=mod;
+      if(w&1)
+        wynik+=y;
+      else
+        wynik-=y;
+      wynik+=mod;
+      wynik%=mod;
+      return;
+    }
+  funkcja(ile+1,x*L[ile],w+1);
+  funkcja(ile+1,x,w);
 }
-
-void solve(int n, int m) {
-	M.clear();
-	leaf_cnt = 0;
-	vertex_cnt = 0;
-
-	int k = max(n, m);
-	while (__builtin_popcount(k) != 1) k++;
-	
-	For (i, k + 2) A[i].reset();
-
-	For (i, n) {
-		For (j, m) {
-			char c;
-			cin >> c;
-			A[i][j] = c == '1';
-		}
-	}
-
-	int num = get_num(0, 0, k).first;
-	// error(num, leaf_cnt);
-	int ans2 = num + leaf_cnt + 1;
-
-	if (get_col(0, 0, k) != 2) ans2 = 1;
-
-	cout << vertex_cnt << " " << ans2 << "\n";
-}
-
 int main() {
-	_upgrade;
+  int n;
+  scanf("%d",&n);
+    for(int i=1;i<=n;i++)
+    {
+      int a;
+      scanf("%d",&a);
+      M=max(M,a);
+      T[a]++;
+    }
+  sito(M+2);
+  P[0]=1;
+  for(int i=1;i<=n;i++)
+  {
+    P[i]=P[i-1]*2;
+    P[i]%=mod;
+  }
 
-	while (true) {
-		int n, m;
-		cin >> n >> m;
-
-		if (n == 0 && m == 0) return 0;
-		solve(n, m);
-	}
+    for(int i=M;i>=2;i--)
+      if(!tab[i])
+        L.push_back(i);
+    funkcja(0,1,0);
+    ll odp=P[n]-1;
+  //  printf("%lld %lld\n",odp,wynik);
+    odp-=wynik;
+    odp+=mod;
+    odp+=mod;
+    odp%=mod;
+    printf("%lld",odp);
 }
-

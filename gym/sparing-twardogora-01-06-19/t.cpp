@@ -69,94 +69,61 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-const int N = 300;
-bitset<N> A[N];
-map<pair<pii, pii>, int>  M;
+// "a", "e", "i", "o", "u" and "y".
 
-int get_col(int x, int y, int len) {
-	int col = 2;
-	for (int i = x; i < x + len; i++) {
-		for (int j = y; j < y + len; j++) {
-			if (col == 2) col = A[i][j];
-			else if (col != A[i][j]) return 2;
-		}
-	}
-
-	return col;
+bool is_vowel(char c) {
+	if (c == 'a' || c == 'i' || c == 'u' || c == 'y') return true;
+	return false;
 }
 
-int leaf_cnt = 0;
-int vertex_cnt = 0;
-
-pair<int, bool> get_num(int x, int y, int len) {
-	int col = get_col(x, y, len);
-	vertex_cnt++;
-	if (col != 2) {
-		// leaf_cnt++;
-		return {col - 3, 1};
-	}
-
-	// error(x, y, len, col);
-	len /= 2;
-
-	auto a2 = get_num(x, y, len);
-	int a = a2.first; 
-	int a3 = a2.second; 
-	auto b2 = get_num(x, y + len, len);
-	int b = b2.first; 
-	int b3 = b2.second; 
-	auto c2 = get_num(x + len, y, len);
-	int c = c2.first; 
-	int c3 = c2.second; 
-	auto d2 = get_num(x + len, y + len, len);
-	int d = d2.first; 
-	int d3 = d2.second; 
-
-	pair<pii, pii> hs = {{a, b}, {c, d}};
-
-	if (M.count(hs) == 0) {
-		int id = int(M.size());
-		leaf_cnt += a3 + b3 + c3 + d3;
-		return {M[hs] = id, 0};
-	} else return {M[hs], 0};
-}
-
-void solve(int n, int m) {
-	M.clear();
-	leaf_cnt = 0;
-	vertex_cnt = 0;
-
-	int k = max(n, m);
-	while (__builtin_popcount(k) != 1) k++;
-	
-	For (i, k + 2) A[i].reset();
-
-	For (i, n) {
-		For (j, m) {
-			char c;
-			cin >> c;
-			A[i][j] = c == '1';
-		}
-	}
-
-	int num = get_num(0, 0, k).first;
-	// error(num, leaf_cnt);
-	int ans2 = num + leaf_cnt + 1;
-
-	if (get_col(0, 0, k) != 2) ans2 = 1;
-
-	cout << vertex_cnt << " " << ans2 << "\n";
+bool is_vowel_eo(char c) {
+	if (c == 'e' || c == 'o') return true;
+	return false;
 }
 
 int main() {
 	_upgrade;
 
-	while (true) {
-		int n, m;
-		cin >> n >> m;
+	int n;
+	string s;
+	cin >> n >> s;
 
-		if (n == 0 && m == 0) return 0;
-		solve(n, m);
+	string res = "";
+	int eo_cnt = 0;
+
+	for (char c : s) {
+		if (!is_vowel(c) && !is_vowel_eo(c)) {
+			if (eo_cnt == 2) {
+				res.push_back(res.back());
+			}
+
+			res.push_back(c);
+			eo_cnt = 0;
+		} else if (is_vowel(c)) {
+			if (eo_cnt == 2) {
+				res.push_back(res.back());
+			}
+
+			if (res.empty() || res.back() != c) 
+				res.push_back(c);
+
+			eo_cnt = 0;
+		} else {
+			if (res.empty() || res.back() == c || !is_vowel_eo(res.back())) {
+				eo_cnt++;
+				if (eo_cnt == 1) res.push_back(c);
+			} else {
+				if (eo_cnt == 2) res.push_back(res.back());
+				eo_cnt = 1;
+				res.push_back(c);
+			}
+		}
 	}
+
+	if (eo_cnt == 2) {
+		res.push_back(res.back());
+	}
+
+	cout << res << "\n";
 }
 

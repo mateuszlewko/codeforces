@@ -69,94 +69,87 @@ typedef long double ld;
 typedef pair<int, int> pii;
 typedef pair<ll, ll> pll;
 
-const int N = 300;
-bitset<N> A[N];
-map<pair<pii, pii>, int>  M;
+const int N = 5 * 100 * 1000 + 10;
 
-int get_col(int x, int y, int len) {
-	int col = 2;
-	for (int i = x; i < x + len; i++) {
-		for (int j = y; j < y + len; j++) {
-			if (col == 2) col = A[i][j];
-			else if (col != A[i][j]) return 2;
+int cnt_pattern[N];
+int cnt_curr[N];
+int A[N];
+
+void print_ans(int beg, int end, int extra, int k) {
+	vector<int> ans;
+
+	for (int i = beg - (beg % k); i < beg; i++) {
+		extra--;
+		ans.push_back(i);
+	}
+
+	for (int i = beg; i <= end; i++) {
+		int x = A[i];
+		if (cnt_pattern[x] == 0 && extra > 0) {
+			extra--;
+			ans.push_back(i);
+		} else if (cnt_pattern[x] > 0) {
+			cnt_pattern[x]--;
 		}
 	}
 
-	return col;
-}
-
-int leaf_cnt = 0;
-int vertex_cnt = 0;
-
-pair<int, bool> get_num(int x, int y, int len) {
-	int col = get_col(x, y, len);
-	vertex_cnt++;
-	if (col != 2) {
-		// leaf_cnt++;
-		return {col - 3, 1};
+	cout << ans.size() << "\n";
+	for (int x : ans) {
+		cout << x + 1 << " ";
 	}
-
-	// error(x, y, len, col);
-	len /= 2;
-
-	auto a2 = get_num(x, y, len);
-	int a = a2.first; 
-	int a3 = a2.second; 
-	auto b2 = get_num(x, y + len, len);
-	int b = b2.first; 
-	int b3 = b2.second; 
-	auto c2 = get_num(x + len, y, len);
-	int c = c2.first; 
-	int c3 = c2.second; 
-	auto d2 = get_num(x + len, y + len, len);
-	int d = d2.first; 
-	int d3 = d2.second; 
-
-	pair<pii, pii> hs = {{a, b}, {c, d}};
-
-	if (M.count(hs) == 0) {
-		int id = int(M.size());
-		leaf_cnt += a3 + b3 + c3 + d3;
-		return {M[hs] = id, 0};
-	} else return {M[hs], 0};
-}
-
-void solve(int n, int m) {
-	M.clear();
-	leaf_cnt = 0;
-	vertex_cnt = 0;
-
-	int k = max(n, m);
-	while (__builtin_popcount(k) != 1) k++;
-	
-	For (i, k + 2) A[i].reset();
-
-	For (i, n) {
-		For (j, m) {
-			char c;
-			cin >> c;
-			A[i][j] = c == '1';
-		}
-	}
-
-	int num = get_num(0, 0, k).first;
-	// error(num, leaf_cnt);
-	int ans2 = num + leaf_cnt + 1;
-
-	if (get_col(0, 0, k) != 2) ans2 = 1;
-
-	cout << vertex_cnt << " " << ans2 << "\n";
 }
 
 int main() {
 	_upgrade;
 
-	while (true) {
-		int n, m;
-		cin >> n >> m;
+	int m, k, n, s;
+	cin >> m >> k >> n >> s;
 
-		if (n == 0 && m == 0) return 0;
-		solve(n, m);
+	int extra = m - k * n;
+
+	For (i, m) cin >> A[i];
+	int pat_distinct = 0;
+
+	For (i, s) {
+		int x;
+		cin >> x;
+		cnt_pattern[x]++;
+		if (cnt_pattern[x] == 1) pat_distinct++;
 	}
+
+	int correct = 0;
+
+	// error(len);
+	// error(pat_distinct);
+
+	int end = 0;
+
+	For (i, m) {	
+
+		while (end < m && correct < pat_distinct) {
+			int x = A[end];
+			cnt_curr[x]++;
+
+			if (cnt_curr[x] == cnt_pattern[x]) correct++;
+			end++;
+		}
+
+		int curr_len = end - i;
+		// error(i, correct, curr_len, end);
+
+		if (correct == pat_distinct && i % k <= extra && curr_len - k <= extra - i % k) {
+			print_ans(i, end - 1, extra, k);
+			return 0;
+		}
+
+		int y = A[i];
+
+		// error(j, y, cnt_curr[y]);
+
+		cnt_curr[y]--;
+		if (cnt_curr[y] + 1 == cnt_pattern[y]) correct--;
+	}
+
+	cout << "-1\n";
 }
 
