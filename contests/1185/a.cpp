@@ -71,5 +71,16 @@ typedef pair<ll, ll> pll;
 
 int main() {
 	_upgrade;
+
+	int d;
+	int A[3];
+
+	For (i, 3) cin >> A[i];
+	cin >> d;
+	
+	sort(A, A + 3);
+
+	ll res = max(0LL, 1LL * d - (A[1] - A[0])) + max(0LL, 1LL * d - (A[2] - A[1]));
+	cout << res << "\n";
 }
 

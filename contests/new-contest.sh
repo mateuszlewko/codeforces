@@ -7,7 +7,10 @@ fi
 
 mkdir $1
 cd $1
-cf con $1
+
+echo 'skipping cf conf $1'
+# cf con $1
+
 cp ../../../contest-reference/template.cpp a.cpp
 code .
 
